@@ -150,6 +150,80 @@ class ReportStatisticsTests(unittest.TestCase):
         rows = report.parse_xml_jtl('<testResults><sample lb="\u4e8b\u52a1" s="true"/></testResults>')
         self.assertEqual(self.summary(rows)["transaction_total"], 0)
 
+    def test_xml_parent_transactions_without_standard_response_message(self):
+        xml = """<testResults>
+          <sample lb="position\u4e8b\u52a1" s="true" rm="OK">
+            <httpSample lb="get_position" s="true"/>
+          </sample>
+          <sample lb="position\u4e8b\u52a1" s="true">
+            <httpSample lb="get_position" s="true"/>
+          </sample>
+          <sample lb="history\u4e8b\u52a1" s="false" rm="compare failed">
+            <httpSample lb="get_history" s="false" rc="500"/>
+          </sample>
+          <httpSample lb="http\u4e8b\u52a1" s="true"/>
+        </testResults>"""
+        rows = report.parse_xml_jtl(xml)
+        summary = self.summary(rows)
+        self.assertEqual(summary["transaction_total"], 3)
+        self.assertEqual(summary["transaction_failed"], 1)
+        self.assertEqual(summary["transaction_sources"], {"standard": 0, "jmx": 0, "xml_parent": 3})
+        self.assertEqual(summary["details"], 1)
+        payload = report.build_teams_payload(report.extract_failures(rows), rows, "legacy.jtl", "report.html")
+        facts = next(block["facts"] for block in payload["attachments"][0]["content"]["body"] if block["type"] == "FactSet")
+        values = {fact["title"]: fact["value"] for fact in facts}
+        self.assertEqual(values["\u4e8b\u52a1\u603b\u6570"], "3")
+        self.assertEqual(values["\u4e8b\u52a1\u6210\u529f\u7387"], "66.67% (2/3)")
+
+    def test_auto_jmx_match_recognizes_flat_records_without_response_message(self):
+        xml = """<testResults>
+          <sample lb="position workflow" s="true"/>
+          <sample lb="position workflow" s="true"/>
+          <sample lb="second workflow" s="true"/>
+          <httpSample lb="second workflow" s="true"/>
+        </testResults>"""
+        rows = report.parse_xml_jtl(xml)
+        with tempfile.TemporaryDirectory() as directory:
+            correct = Path(directory) / "actual.jmx"
+            correct.write_text(PLAN_XML, encoding="utf-8")
+            wrong = Path(directory) / "other.jmx"
+            wrong.write_text(PLAN_XML.replace('testname="active"', 'testname="active" enabled="false"'), encoding="utf-8")
+            plan, note = report.discover_transaction_plan(rows, [directory, directory])
+        self.assertEqual(plan["path"], str(correct))
+        self.assertTrue(note)
+        report.apply_transaction_plan(rows, plan)
+        summary = self.summary(rows)
+        self.assertEqual(summary["transaction_total"], 3)
+        self.assertEqual(summary["transaction_sources"]["jmx"], 3)
+
+    def test_auto_jmx_match_does_not_choose_between_equal_candidates(self):
+        with tempfile.TemporaryDirectory() as directory:
+            for name in ("first.jmx", "second.jmx"):
+                (Path(directory) / name).write_text(PLAN_XML, encoding="utf-8")
+            plan, note = report.discover_transaction_plan([{"label": "position workflow"}], [directory])
+        self.assertIsNone(plan)
+        self.assertIn("--jmx", note)
+
+    def test_auto_jmx_match_does_not_count_unexecuted_controllers(self):
+        with tempfile.TemporaryDirectory() as directory:
+            (Path(directory) / "actual.jmx").write_text(PLAN_XML, encoding="utf-8")
+            plan, _ = report.discover_transaction_plan([{"label": "unrelated request"}], [directory])
+        self.assertIsNone(plan)
+
+    def test_known_jsr223_sampler_is_not_inferred_as_parent_transaction(self):
+        rows = report.parse_xml_jtl('''<testResults>
+          <sample lb="prepare\u4e8b\u52a1" s="true">
+            <sample lb="comparison detail" s="true"/>
+          </sample>
+        </testResults>''')
+        report.apply_transaction_plan(rows, {"enabled_labels": [], "sampler_labels": ["prepare\u4e8b\u52a1"]})
+        self.assertEqual(self.summary(rows)["transaction_total"], 0)
+
+    def test_http_method_blocks_name_only_jmx_fallback(self):
+        rows = [{"label": "workflow", "method": "POST", "success": "true"}]
+        report.apply_transaction_plan(rows, {"enabled_labels": ["workflow"]})
+        self.assertEqual(self.summary(rows)["transaction_total"], 0)
+
     def test_no_transactions_still_counts_samples(self):
         summary = self.summary([{"label": "request", "success": "true"}])
         self.assertEqual(summary["sample_total"], 1)
@@ -201,6 +275,7 @@ class ReportStatisticsTests(unittest.TestCase):
             "\u4e8b\u52a1\u603b\u6570", "\u5931\u8d25\u4e8b\u52a1", "\u4e8b\u52a1\u6210\u529f\u7387",
         ])
         self.assertTrue(any("position workflow" in block.get("text", "") for block in body))
+        self.assertIn("XML sample", values["\u4e8b\u52a1\u8bc6\u522b\u8bca\u65ad"])
 
     def test_zero_transactions_have_warning_and_na_rate_in_teams(self):
         payload = report.build_teams_payload([], [], "empty.jtl", "report.html")
@@ -234,6 +309,37 @@ class ReportStatisticsTests(unittest.TestCase):
             self.assertIn("0.00% (0/1)", output.getvalue())
             self.assertIn(str(jmx_path), output.getvalue())
             self.assertIn("second workflow", output.getvalue())
+
+    def test_main_automatically_applies_jmx_before_building_teams_payload(self):
+        xml = """<testResults>
+          <sample lb="position workflow" s="true"/>
+          <sample lb="position workflow" s="true"/>
+          <sample lb="second workflow" s="false"/>
+        </testResults>"""
+        with tempfile.TemporaryDirectory() as directory:
+            xml_path = Path(directory) / "results.jtl"
+            jmx_path = Path(directory) / "actual.jmx"
+            config_path = Path(directory) / "config.json"
+            html_path = Path(directory) / "report.html"
+            xml_path.write_text(xml, encoding="utf-8")
+            jmx_path.write_text(PLAN_XML, encoding="utf-8")
+            config_path.write_text("{}", encoding="utf-8")
+            plan = report.read_transaction_plan(jmx_path)
+            args = ["jtl_fail_report.py", str(xml_path), "-o", str(html_path),
+                    "--config", str(config_path), "--no-open"]
+            output = io.StringIO()
+            with mock.patch("sys.argv", args), mock.patch.dict(os.environ, {}, clear=True), \
+                    mock.patch.object(report, "discover_transaction_plan", return_value=(plan, "auto match")) as discover, \
+                    mock.patch.object(report, "push_teams_report", return_value=None) as push_card, \
+                    mock.patch.object(report, "push_teams_file_report", return_value=None), \
+                    contextlib.redirect_stdout(output):
+                report.main()
+            discover.assert_called_once()
+            sent_rows = push_card.call_args.args[2]
+            self.assertEqual(self.summary(sent_rows)["transaction_total"], 3)
+            self.assertEqual(self.summary(sent_rows)["transaction_failed"], 1)
+            self.assertIn("\u4e8b\u52a1\u603b\u6570: 3", output.getvalue())
+            self.assertIn("66.67% (2/3)", output.getvalue())
 
 
 if __name__ == "__main__":

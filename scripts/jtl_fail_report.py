@@ -5,7 +5,7 @@ CRM2.0 中间件接口 JTL 失败报告生成器
 
 功能:
   - 读取 JMeter 生成的 .jtl 文件，默认支持 CSV JTL，也兼容常见 XML JTL。
-  - 总览按事务控制器执行次数统计，采样数辅助展示；可指定实际执行的 JMX 校验事务配置。
+  - 总览按事务控制器执行次数统计，采样数辅助展示；自动匹配 JMX，也可显式指定实际执行的 JMX。
   - 只输出失败/报错的采样结果。
   - 从 failureMessage 中提取接口、字段、预期值(DB/CSV)、实际值(API)、DB字段、辅助接口值、失败原因。
   - 生成一个可直接打开的 HTML 报告，样式内嵌，无外部依赖。
@@ -39,7 +39,7 @@ from urllib.parse import parse_qs, parse_qsl, quote, unquote, urlencode, urlpars
 from urllib import request as urlrequest
 
 
-SCRIPT_VERSION = "4.22"
+SCRIPT_VERSION = "4.23"
 DEFAULT_CONFIG_FILE = "jtl_fail_report_config.json"
 DEFAULT_TOKEN_CACHE_FILE = "jtl_fail_report_token_cache.json"
 DEFAULT_TEAMS_CHAT_URL = "https://teams.microsoft.com/l/chat/19:4f1f0b60d3a94f90b0c883360575d0d8@thread.v2/conversations?context=%7B%22contextType%22%3A%22chat%22%7D"
@@ -194,6 +194,7 @@ def parse_xml_jtl(text):
         rows.append({
             "_sample_depth": depth,
             "_sample_tag": elem.tag.split("}")[-1],
+            "_sample_child_count": sum(child.tag.split("}")[-1] in ("sample", "httpSample") for child in elem),
             "timeStamp": attrs.get("ts", ""),
             "elapsed": attrs.get("t", ""),
             "label": attrs.get("lb", ""),
@@ -973,21 +974,43 @@ def sample_time(ms):
         return ""
 
 
-def is_transaction_row(row):
+def is_explicit_http_row(row):
+    return (
+        row.get("_sample_tag") == "httpSample"
+        or is_http_url(row.get("URL"))
+        or (row.get("method") or "").strip().upper() in ("GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS", "TRACE", "CONNECT")
+    )
+
+
+def transaction_match_source(row):
+    if is_explicit_http_row(row):
+        return ""
     response_message = row.get("responseMessage", "") or ""
     if re.search(r"\bNumber\s+of\s+samples\s+in\s+transaction\b", response_message, re.I):
-        return True
-    # HTTP sampler names may also contain the word "transaction".
-    if row.get("_sample_tag") == "httpSample" or is_http_url(row.get("URL")):
-        return False
-    # A name alone cannot distinguish a controller from HTTP/JSR223 samples.
-    return bool(row.get("_jmx_transaction"))
+        return "standard"
+    if row.get("_jmx_transaction"):
+        return "jmx"
+    # Compatibility requires both a transaction-like name and a parent sample,
+    # not just a name on an arbitrary HTTP/JSR223 result.
+    if (
+        not row.get("_jmx_sampler")
+        and row.get("_sample_tag") == "sample"
+        and row.get("_sample_child_count", 0) > 0
+        and re.search(r"事务(?:控制器)?(?:[-_\s].*)?$", row.get("label", "") or "")
+    ):
+        return "xml_parent"
+    return ""
+
+
+def is_transaction_row(row):
+    return bool(transaction_match_source(row))
 
 
 def read_transaction_plan(path):
     """Read enabled controller definitions, respecting disabled ancestor nodes."""
     root = parse_xml_root(read_text(path))
     labels = []
+    sampler_labels = []
     controller_total = 0
 
     def walk(tree, active=True):
@@ -1001,6 +1024,8 @@ def read_transaction_plan(path):
                 controller_total += 1
                 if enabled:
                     labels.append(node.get("testname", ""))
+            elif enabled and (node.tag.endswith("Sampler") or node.tag == "HTTPSamplerProxy"):
+                sampler_labels.append(node.get("testname", ""))
             if index + 1 < len(nodes) and nodes[index + 1].tag == "hashTree":
                 walk(nodes[index + 1], enabled)
 
@@ -1008,14 +1033,48 @@ def read_transaction_plan(path):
     if tree is None:
         raise ValueError(f"不是有效的 JMeter 测试计划，缺少 hashTree: {path}")
     walk(tree)
-    return {"path": os.path.abspath(path), "controller_total": controller_total, "enabled_labels": labels}
+    return {"path": os.path.abspath(path), "controller_total": controller_total, "enabled_labels": labels, "sampler_labels": sampler_labels}
 
 
 def apply_transaction_plan(rows, plan):
     """Use exact JMX names only as a fallback when JTL type metadata is absent."""
     labels = {label for label in plan["enabled_labels"] if label and "${" not in label}
+    sampler_labels = set(plan.get("sampler_labels", []))
     for row in rows:
-        row["_jmx_transaction"] = row.get("label", "") in labels
+        label = row.get("label", "")
+        row["_jmx_sampler"] = label in sampler_labels
+        row["_jmx_transaction"] = label in labels and label not in sampler_labels
+        row["_transaction_plan_path"] = plan.get("path", "")
+
+
+def discover_transaction_plan(rows, search_dirs):
+    """Select only a unique best JMX match; never add counts from definitions."""
+    observed = {row.get("label", "") for row in rows if not is_explicit_http_row(row)}
+    candidates = {}
+    errors = []
+    for directory in search_dirs:
+        for path in Path(directory).glob("*.jmx"):
+            key = os.path.normcase(os.path.abspath(path))
+            if key in candidates:
+                continue
+            try:
+                plan = read_transaction_plan(path)
+            except (OSError, ValueError, ET.ParseError) as exc:
+                errors.append(f"{path.name}: {exc}")
+                continue
+            labels = set(plan["enabled_labels"]) - set(plan.get("sampler_labels", []))
+            score = len({label for label in labels if label and "${" not in label} & observed)
+            candidates[key] = (score, plan)
+    best_score = max((score for score, _ in candidates.values()), default=0)
+    best = [plan for score, plan in candidates.values() if score == best_score and score > 0]
+    if len(best) == 1:
+        return best[0], "已根据 JTL 记录自动匹配 JMX（仅辅助识别，不将配置个数当作执行次数）。"
+    if len(best) > 1:
+        return None, "多个 JMX 同样匹配，未自动选择；请用 --jmx 指定实际执行的文件。"
+    note = "未找到与 JTL 事务记录匹配的 JMX；缺少标准标记时，请用 --jmx 指定实际执行的文件。"
+    if errors:
+        note += f" 有 {len(errors)} 个候选 JMX 读取失败。"
+    return None, note
 
 
 def print_transaction_plan_diagnostics(summary, plan):
@@ -1045,11 +1104,22 @@ def summarize(details, all_rows):
     ]
     transaction_success = max(len(transaction_rows) - len(failed_transaction_rows), 0)
     transaction_groups = {}
+    transaction_sources = {"standard": 0, "jmx": 0, "xml_parent": 0}
     for row in transaction_rows:
+        transaction_sources[transaction_match_source(row)] += 1
         label = row.get("label", "") or "(未命名事务)"
         group = transaction_groups.setdefault(label, {"label": label, "total": 0, "failed": 0})
         group["total"] += 1
         group["failed"] += int(str(row.get("success", "")).strip().lower() == "false")
+    xml_samples = sum(r.get("_sample_tag") == "sample" for r in all_rows)
+    http_samples = sum(is_explicit_http_row(r) for r in all_rows)
+    transaction_diagnostics = (
+        f"标准事务标记 {transaction_sources['standard']} / JMX 匹配 {transaction_sources['jmx']} / XML 父事务兼容识别 {transaction_sources['xml_parent']}；"
+        f"JTL 共 {len(all_rows)} 条采样记录，其中 XML sample {xml_samples} 条、HTTP 采样 {http_samples} 条。"
+    )
+    plan_path = next((r.get("_transaction_plan_path") for r in all_rows if r.get("_transaction_plan_path")), "")
+    if plan_path:
+        transaction_diagnostics += f" 辅助 JMX: {os.path.basename(plan_path)}。"
     fail_fields = []
     skip_fields = []
     for d in details:
@@ -1087,6 +1157,8 @@ def summarize(details, all_rows):
         "transaction_failed": len(failed_transaction_rows),
         "transaction_success": transaction_success,
         "transaction_groups": list(transaction_groups.values()),
+        "transaction_sources": transaction_sources,
+        "transaction_diagnostics": transaction_diagnostics,
         "transaction_scope": "按 JTL 中的事务控制器执行记录累计；同名多次执行、嵌套事务分别计数，不按 HTTP 请求数统计。",
         "transaction_warning": "" if transaction_rows else "JTL 未识别到事务控制器执行记录，事务成功率不适用；请核对实际执行的 JMX 和 JTL 保存配置。",
         "details": len(details),
@@ -2730,6 +2802,7 @@ def generate_html(details, all_rows, jtl_name):
         "<h1>CRM2.0+交易大赛真实生产和空闲生产中间件接口失败报告</h1>",
         f'<div class="sub">数据来源: {h(jtl_name)} | 生成时间: {h(generated_at)}</div>',
         f'<div class="sub">统计口径: {h(summary["transaction_scope"])}</div>',
+        f'<div class="sub">事务识别诊断: {h(summary["transaction_diagnostics"])}</div>',
         f'<div class="sub">采样统计（辅助）: 总数 {summary["sample_total"]} | 失败 {summary["sample_failed"]} | 成功率 {sample_rate}</div>',
         f'<div class="sub">{h(summary["sample_scope"])}</div>',
         "</div>",
@@ -3031,6 +3104,7 @@ def build_teams_payload(details, all_rows, jtl_name, output_path, report_url=Non
         {"title": "事务成功率", "value": f"{transaction_rate} ({summary['transaction_success']}/{summary['transaction_total']})"},
         {"title": "采样统计（辅助）", "value": f"总数 {summary['sample_total']} / 失败 {summary['sample_failed']} / 成功率 {sample_rate}"},
         {"title": "统计口径", "value": summary["transaction_scope"]},
+        {"title": "事务识别诊断", "value": summary["transaction_diagnostics"]},
         {"title": "对比失败字段(去重)", "value": str(summary["fail_field_unique_count"])},
     ]
 
@@ -3607,7 +3681,7 @@ def parse_args():
     parser.add_argument("-o", "--output", help="输出 HTML 文件路径，默认: <JTL文件名>_失败报告.html")
     parser.add_argument("--no-open", action="store_true", help="生成后不自动打开浏览器")
     parser.add_argument("--config", default=DEFAULT_CONFIG_FILE, help=f"配置文件路径，默认: {DEFAULT_CONFIG_FILE}")
-    parser.add_argument("--jmx", help="实际执行的 JMX 文件；用于辅助识别事务，并校验启用的事务是否出现在 JTL 中。不会执行或修改 JMX。")
+    parser.add_argument("--jmx", help="实际执行的 JMX 文件；省略时仅在找到唯一最佳匹配时自动选择。用于辅助识别及校验，不会执行或修改 JMX。")
     parser.add_argument(
         "--teams-chat-url",
         help="TM/Teams 聊天页面链接；也可用配置项 teams_chat_url 或环境变量 TEAMS_CHAT_URL/TM_CHAT_URL。",
@@ -3694,7 +3768,15 @@ def main():
     print(f"文件大小: {os.path.getsize(jtl_path) / 1024:.1f} KB")
 
     rows = parse_jtl(jtl_path)
-    transaction_plan = read_transaction_plan(args.jmx) if args.jmx else None
+    if args.jmx:
+        transaction_plan = read_transaction_plan(args.jmx)
+        plan_note = "使用 --jmx 指定的测试计划。"
+    else:
+        jtl_parent = Path(jtl_path).parent
+        script_dir = Path(__file__).resolve().parent
+        transaction_plan, plan_note = discover_transaction_plan(
+            rows, [jtl_parent, jtl_parent.parent, jtl_parent.parent.parent, script_dir, script_dir.parent],
+        )
     if transaction_plan is not None:
         apply_transaction_plan(rows, transaction_plan)
     details = extract_failures(rows)
@@ -3707,6 +3789,8 @@ def main():
     print(f"  失败事务: {summary['transaction_failed']}")
     print(f"  事务成功率: {transaction_rate} ({summary['transaction_success']}/{summary['transaction_total']})")
     print(f"  统计口径: {summary['transaction_scope']}")
+    print(f"  事务识别诊断: {summary['transaction_diagnostics']}")
+    print(f"  JMX 匹配: {plan_note}")
     print(f"  采样统计（辅助）: 总数 {summary['sample_total']} / 失败 {summary['sample_failed']} / 成功率 {sample_rate}")
     if summary["transaction_warning"]:
         print(f"  警告: {summary['transaction_warning']}")
