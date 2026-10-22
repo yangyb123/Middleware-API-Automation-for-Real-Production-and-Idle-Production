@@ -1,0 +1,72 @@
+timeStamp,elapsed,label,responseCode,responseMessage,threadName,dataType,success,failureMessage,bytes,sentBytes,grpThreads,allThreads,URL,Latency,IdleTime,Connect
+1792648974422,265,空闲生产环境-持仓订单事务,200,"Number of samples in transaction : 2, number of failing samples : 0",线程组 1-1,,true,,8589,350,1,1,null,0,0,78
+1792648974425,164,空闲生产环境-持仓订单,200,OK,线程组 1-1,text,true,,3380,175,1,1,http://54.255.125.211:8080/crm20/get_position_ex?login=784578&instanceid=MT5_1,164,0,78
+1792648974591,96,空闲生产环境-持仓订单,200,OK,线程组 1-1,text,true,,5209,175,1,1,http://54.255.125.211:8080/crm20/get_position_ex?login=639653&instanceid=MT4_1,95,0,0
+1792648974749,311,空闲生产环境-持仓订单事务,200,"Number of samples in transaction : 2, number of failing samples : 0",中间件相关接口-空闲生产环境-github✅✅ 2-1,,true,,8589,350,1,1,null,0,3,90
+1792648974751,188,空闲生产环境-持仓订单,200,OK,中间件相关接口-空闲生产环境-github✅✅ 2-1,text,true,,3380,175,1,1,http://54.255.125.211:8080/crm20/get_position_ex?login=784578&instanceid=MT5_1,188,0,90
+1792648974940,123,空闲生产环境-持仓订单,200,OK,中间件相关接口-空闲生产环境-github✅✅ 2-1,text,true,,5209,175,1,1,http://54.255.125.211:8080/crm20/get_position_ex?login=639653&instanceid=MT4_1,123,0,0
+1792648975064,195,空闲生产环境-待处理/历史订单事务,200,"Number of samples in transaction : 2, number of failing samples : 0",中间件相关接口-空闲生产环境-github✅✅ 2-1,,true,,20887,310,1,1,null,0,3,0
+1792648975065,95,空闲生产环境-待处理/历史订单,200,OK,中间件相关接口-空闲生产环境-github✅✅ 2-1,text,true,,12591,155,1,1,http://54.255.125.211:8080/crm20/get_order_ex?login=784578,95,0,0
+1792648975162,100,空闲生产环境-待处理/历史订单,200,OK,中间件相关接口-空闲生产环境-github✅✅ 2-1,text,true,,8296,155,1,1,http://54.255.125.211:8080/crm20/get_order_ex?login=639653,100,0,0
+1792648975264,109,空闲生产环境-汇总的已平仓仓位(进出交易),200,OK,中间件相关接口-空闲生产环境-github✅✅ 2-1,text,true,,10305,264,1,1,http://54.255.125.211:8080/crm20/get_history_position_ex?instanceid=MT5_1&login=784578&close_time_utc_ms__gte=1776030673000&_sort_by=close_time_utc_ms&_sort_order=desc,109,0,0
+1792648975375,104,空闲生产环境-汇总的已平仓仓位(进出交易),200,OK,中间件相关接口-空闲生产环境-github✅✅ 2-1,text,true,,7544,264,1,1,http://54.255.125.211:8080/crm20/get_history_position_ex?instanceid=MT4_1&login=639653&close_time_utc_ms__gte=1776030673000&_sort_by=close_time_utc_ms&_sort_order=desc,104,0,0
+1792648975481,97,空闲生产环境-符号规格和实时报价,200,OK,中间件相关接口-空闲生产环境-github✅✅ 2-1,text,true,,1056,172,1,1,http://54.255.125.211:8080/crm20/get_symbol_ex?instanceid=MT5_1&name=EURUSD,97,0,0
+1792648975580,116,空闲生产环境-符号规格和实时报价,200,OK,中间件相关接口-空闲生产环境-github✅✅ 2-1,text,true,,1055,172,1,1,http://54.255.125.211:8080/crm20/get_symbol_ex?instanceid=MT4_1&name=GBPUSD,116,0,0
+1792648975697,98,跨所有实例的账户级财务指标(权益:利润、利润率),200,OK,中间件相关接口-空闲生产环境-github✅✅ 2-1,text,true,,2629,176,1,1,"http://54.255.125.211:8080/crm20/get_account_metrics_ex?login__in=784578,639653",98,0,0
+1792648975796,153,空闲生产环境-多维度聚合摘要(按实例、货币、组、风险、绩效),200,OK,中间件相关接口-空闲生产环境-github✅✅ 2-1,text,true,,26898,192,1,1,"http://54.255.125.211:8080/crm20/get_account_metrics_summary_ex?_dimensions=overall,by_instance",153,0,0
+1792648975950,97,空闲生产环境-自定义统计聚合(SUM、AVG、MINMAX等)，支持可选分组,200,OK,中间件相关接口-空闲生产环境-github✅✅ 2-1,text,true,,1038,371,1,1,http://54.255.125.211:8080/crm20/get_account_metrics_stat_ex?,97,0,0
+1792648976049,146,空闲生产环境-获取挂单信息,200,OK,中间件相关接口-空闲生产环境-github✅✅ 2-1,text,true,,996,174,1,1,http://54.255.125.211:8080/crm20/get_order_info?instanceid=MT5_1&login=784578,146,0,0
+1792648976197,104,空闲生产环境-获取挂单信息,200,OK,中间件相关接口-空闲生产环境-github✅✅ 2-1,text,true,,1408,174,1,1,http://54.255.125.211:8080/crm20/get_order_info?instanceid=MT4_1&login=639653,104,0,0
+1792648976303,96,空闲生产环境-获取持仓订单,200,OK,中间件相关接口-空闲生产环境-github✅✅ 2-1,text,true,,2982,177,1,1,http://54.255.125.211:8080/crm20/get_position_info?instanceid=MT5_1&login=784578,96,0,0
+1792648976401,97,空闲生产环境-获取持仓订单,200,OK,中间件相关接口-空闲生产环境-github✅✅ 2-1,text,true,,5229,177,1,1,http://54.255.125.211:8080/crm20/get_position_info?instanceid=MT4_1&login=639653,97,0,0
+1792648976499,102,空闲生产环境-获取历史,200,OK,中间件相关接口-空闲生产环境-github✅✅ 2-1,text,true,,10728,180,1,1,http://54.255.125.211:8080/crm20/get_history_position?instanceid=MT5_1&login=784578,102,0,0
+1792648976603,106,空闲生产环境-获取历史,200,OK,中间件相关接口-空闲生产环境-github✅✅ 2-1,text,true,,9069,180,1,1,http://54.255.125.211:8080/crm20/get_history_position?instanceid=MT4_1&login=639653,106,0,0
+1792648976711,516,空闲生产环境-获取用户信息,200,OK,中间件相关接口-空闲生产环境-github✅✅ 2-1,text,true,,3126,173,1,1,http://54.255.125.211:8080/crm20/get_user_info?instanceid=MT5_1&login=784578,516,0,0
+1792648977228,451,空闲生产环境-获取用户信息,200,OK,中间件相关接口-空闲生产环境-github✅✅ 2-1,text,true,,3264,173,1,1,http://54.255.125.211:8080/crm20/get_user_info?instanceid=MT4_1&login=639653,451,0,0
+1792648977680,94,空闲生产环境-获取群组信息,200,OK,中间件相关接口-空闲生产环境-github✅✅ 2-1,text,true,,28632,162,1,1,http://54.255.125.211:8080/crm20/get_groups_info?instanceid=MT5_1,93,0,0
+1792648977776,91,空闲生产环境-获取群组信息,200,OK,中间件相关接口-空闲生产环境-github✅✅ 2-1,text,true,,22441,162,1,1,http://54.255.125.211:8080/crm20/get_groups_info?instanceid=MT4_1,91,0,0
+1792648977868,181,空闲生产环境-获取货币信息,200,OK,中间件相关接口-空闲生产环境-github✅✅ 2-1,text,true,,107429,163,1,1,http://54.255.125.211:8080/crm20/get_symbols_info?instanceid=MT5_1,93,0,0
+1792648978051,92,空闲生产环境-获取货币信息,200,OK,中间件相关接口-空闲生产环境-github✅✅ 2-1,text,true,,72162,163,1,1,http://54.255.125.211:8080/crm20/get_symbols_info?instanceid=MT4_1,92,0,0
+1792648978144,97,空闲生产环境-获取服务器信息,200,OK,中间件相关接口-空闲生产环境-github✅✅ 2-1,text,true,,1681,148,1,1,http://54.255.125.211:8080/crm20/get_mt_server_info,97,0,0
+1792648978242,996,空闲生产环境-获取归档账户,200,OK,中间件相关接口-空闲生产环境-github✅✅ 2-1,text,true,,4114682,239,1,1,http://54.255.125.211:8080/crm20/get_archive_user,276,0,0
+1792648979242,517,空闲生产环境-充值/提现,200,OK,中间件相关接口-空闲生产环境-github✅✅ 2-1,text,true,,1287,349,1,1,http://54.255.125.211:8080/crm20/modify_balance,517,0,0
+1792648979760,995,空闲生产环境-修改杠杆,200,OK,中间件相关接口-空闲生产环境-github✅✅ 2-1,text,true,,2508,305,1,1,http://54.255.125.211:8080/crm20/modify_user_info,995,0,0
+1792648980755,978,空闲生产环境-重置密码,200,OK,中间件相关接口-空闲生产环境-github✅✅ 2-1,text,true,,827,303,1,1,http://54.255.125.211:8080/crm20/change_password,978,0,0
+1792648981734,730,空闲生产环境-修改账户权限,200,OK,中间件相关接口-空闲生产环境-github✅✅ 2-1,text,true,,2160,279,1,1,http://54.255.125.211:8080/crm20/change_user_rights,730,0,0
+1792648982465,510,空闲生产环境-设置组权限,200,OK,中间件相关接口-空闲生产环境-github✅✅ 2-1,text,true,,642,296,1,1,http://54.255.125.211:8080/crm20/set_group_permission,510,0,0
+1792648982976,428,空闲生产环境-设置品种交易模式,200,OK,中间件相关接口-空闲生产环境-github✅✅ 2-1,text,true,,642,279,1,1,http://54.255.125.211:8080/crm20/set_symbol_trade_mode,428,0,0
+1792648983406,91,空闲生产环境查询多个账户挂单订单,200,OK,中间件相关接口-空闲生产环境-github✅✅ 2-1,text,true,,2790,834,1,1,http://54.255.125.211:8080/crm20/list_pending_orders,91,0,0
+1792648983498,214,查询多个账户持仓订单,200,OK,中间件相关接口-空闲生产环境-github✅✅ 2-1,text,true,,8129,735,1,1,http://54.255.125.211:8080/crm20/list_open_positions,214,0,0
+1792648983713,111,23交易大赛-批量查询完全关闭持仓生命周期,200,OK,中间件相关接口-空闲生产环境-github✅✅ 2-1,text,true,,118423,930,1,1,http://54.255.125.211:8080/contest/positions/history/query,111,0,0
+1792648983826,92,22交易大赛-批量查询账户资金信息事务,200,OK,中间件相关接口-空闲生产环境-github✅✅ 2-1,text,true,,2119,823,1,1,http://54.255.125.211:8080/contest/accounts/query,92,0,0
+1792648983982,183,真实生产环境-持仓订单  2026-10-22-14:03:04.165,200,OK,中间件相关接口-真实生产环境-github✅✅ 3-1,text,true,,3313,174,1,1,http://13.214.249.50:8080/crm20/get_position_ex?login=784578&instanceid=MT5_1,182,0,83
+1792648984167,87,真实生产环境-持仓订单  2026-10-22-14:03:04.254,200,OK,中间件相关接口-真实生产环境-github✅✅ 3-1,text,true,,5059,174,1,1,http://13.214.249.50:8080/crm20/get_position_ex?login=639653&instanceid=MT4_1,87,0,0
+1792648984256,107,真实生产环境-待处理/历史订单,200,OK,中间件相关接口-真实生产环境-github✅✅ 3-1,text,true,,12695,154,1,1,http://13.214.249.50:8080/crm20/get_order_ex?login=784578,107,0,0
+1792648984365,144,真实生产环境-待处理/历史订单,200,OK,中间件相关接口-真实生产环境-github✅✅ 3-1,text,true,,8328,154,1,1,http://13.214.249.50:8080/crm20/get_order_ex?login=639653,143,0,0
+1792648984510,98,真实生产环境-汇总的已平仓仓位(进出交易),200,OK,中间件相关接口-真实生产环境-github✅✅ 3-1,text,true,,10223,263,1,1,http://13.214.249.50:8080/crm20/get_history_position_ex?instanceid=MT5_1&login=784578&close_time_utc_ms__gte=1776030673000&_sort_by=close_time_utc_ms&_sort_order=desc,98,0,0
+1792648984610,91,真实生产环境-汇总的已平仓仓位(进出交易),200,OK,中间件相关接口-真实生产环境-github✅✅ 3-1,text,true,,7402,263,1,1,http://13.214.249.50:8080/crm20/get_history_position_ex?instanceid=MT4_1&login=639653&close_time_utc_ms__gte=1776030673000&_sort_by=close_time_utc_ms&_sort_order=desc,91,0,0
+1792648984703,85,真实生产环境-符号规格和实时报价,200,OK,中间件相关接口-真实生产环境-github✅✅ 3-1,text,true,,972,171,1,1,http://13.214.249.50:8080/crm20/get_symbol_ex?instanceid=MT5_1&name=EURUSD,85,0,0
+1792648984790,86,真实生产环境-符号规格和实时报价,200,OK,中间件相关接口-真实生产环境-github✅✅ 3-1,text,true,,968,171,1,1,http://13.214.249.50:8080/crm20/get_symbol_ex?instanceid=MT4_1&name=GBPUSD,86,0,0
+1792648984877,86,真实生产环境-跨所有实例的账户级财务指标(权益:利润、利润率)11111111111,200,OK,中间件相关接口-真实生产环境-github✅✅ 3-1,text,true,,2585,175,1,1,"http://13.214.249.50:8080/crm20/get_account_metrics_ex?login__in=784578,639653",86,0,0
+1792648984964,243,真实生产环境-多维度聚合摘要(按实例、货币、组、风险、绩效),200,OK,中间件相关接口-真实生产环境-github✅✅ 3-1,text,true,,27002,191,1,1,"http://13.214.249.50:8080/crm20/get_account_metrics_summary_ex?_dimensions=overall,by_instance",243,0,0
+1792648985208,88,真实生产环境-自定义统计聚合(SUM、AVG、MINMAX等)，支持可选分组,200,OK,中间件相关接口-真实生产环境-github✅✅ 3-1,text,true,,968,370,1,1,http://13.214.249.50:8080/crm20/get_account_metrics_stat_ex?,88,0,0
+1792648985298,88,真实生产环境-获取挂单信息,200,OK,中间件相关接口-真实生产环境-github✅✅ 3-1,text,true,,926,173,1,1,http://13.214.249.50:8080/crm20/get_order_info?instanceid=MT5_1&login=784578,88,0,0
+1792648985388,90,真实生产环境-获取挂单信息,200,OK,中间件相关接口-真实生产环境-github✅✅ 3-1,text,true,,1338,173,1,1,http://13.214.249.50:8080/crm20/get_order_info?instanceid=MT4_1&login=639653,90,0,0
+1792648985479,103,真实生产环境-获取持仓订单,200,OK,中间件相关接口-真实生产环境-github✅✅ 3-1,text,true,,2923,176,1,1,http://13.214.249.50:8080/crm20/get_position_info?instanceid=MT5_1&login=784578,103,0,0
+1792648985583,93,真实生产环境-获取持仓订单,200,OK,中间件相关接口-真实生产环境-github✅✅ 3-1,text,true,,5094,176,1,1,http://13.214.249.50:8080/crm20/get_position_info?instanceid=MT4_1&login=639653,92,0,0
+1792648985678,96,真实生产环境-获取历史,200,OK,中间件相关接口-真实生产环境-github✅✅ 3-1,text,false,Test failed: text expected something using /login/	Test failed: text expected something using /Login/	,523,179,1,1,http://13.214.249.50:8080/crm20/get_history_position?instanceid=MT5_1&login=784578,96,0,0
+1792648985776,93,真实生产环境-获取历史,200,OK,中间件相关接口-真实生产环境-github✅✅ 3-1,text,true,,8909,179,1,1,http://13.214.249.50:8080/crm20/get_history_position?instanceid=MT4_1&login=639653,93,0,0
+1792648985871,527,真实生产环境-获取用户信息,200,OK,中间件相关接口-真实生产环境-github✅✅ 3-1,text,true,,2985,172,1,1,http://13.214.249.50:8080/crm20/get_user_info?instanceid=MT5_1&login=784578,527,0,0
+1792648986400,457,真实生产环境-获取用户信息,200,OK,中间件相关接口-真实生产环境-github✅✅ 3-1,text,true,,3109,172,1,1,http://13.214.249.50:8080/crm20/get_user_info?instanceid=MT4_1&login=639653,457,0,0
+1792648986859,98,真实生产环境-获取群组信息,200,OK,中间件相关接口-真实生产环境-github✅✅ 3-1,text,true,,28562,161,1,1,http://13.214.249.50:8080/crm20/get_groups_info?instanceid=MT5_1,98,0,0
+1792648986959,84,真实生产环境-获取群组信息,200,OK,中间件相关接口-真实生产环境-github✅✅ 3-1,text,true,,22371,161,1,1,http://13.214.249.50:8080/crm20/get_groups_info?instanceid=MT4_1,84,0,0
+1792648987044,171,真实生产环境-获取货币信息,200,OK,中间件相关接口-真实生产环境-github✅✅ 3-1,text,true,,100953,162,1,1,http://13.214.249.50:8080/crm20/get_symbols_info?instanceid=MT5_1,91,0,0
+1792648987217,90,真实生产环境-获取货币信息,200,OK,中间件相关接口-真实生产环境-github✅✅ 3-1,text,true,,69255,162,1,1,http://13.214.249.50:8080/crm20/get_symbols_info?instanceid=MT4_1,90,0,0
+1792648987308,84,真实生产环境-获取服务器信息,200,OK,中间件相关接口-真实生产环境-github✅✅ 3-1,text,true,,1611,147,1,1,http://13.214.249.50:8080/crm20/get_mt_server_info,84,0,0
+1792648987393,3699,真实生产环境-获取归档账户,200,OK,中间件相关接口-真实生产环境-github✅✅ 3-1,text,true,,4114612,238,1,1,http://13.214.249.50:8080/crm20/get_archive_user,3127,0,0
+1792648991098,744,真实生产环境-充值/提现,200,OK,中间件相关接口-真实生产环境-github✅✅ 3-1,text,true,,1202,301,1,1,http://13.214.249.50:8080/crm20/modify_balance,744,0,0
+1792648991843,953,真实生产环境-修改杠杆--修改,200,OK,中间件相关接口-真实生产环境-github✅✅ 3-1,text,true,,2355,322,1,1,http://13.214.249.50:8080/crm20/modify_user_info,953,0,0
+1792648992797,915,真实生产环境-重置密码,200,OK,中间件相关接口-真实生产环境-github✅✅ 3-1,text,true,,525,302,1,1,http://13.214.249.50:8080/crm20/change_password,915,0,0
+1792648993713,710,真实生产环境-修改账户权限,200,OK,中间件相关接口-真实生产环境-github✅✅ 3-1,text,true,,2090,278,1,1,http://13.214.249.50:8080/crm20/change_user_rights,710,0,0
+1792648994423,523,真实生产环境-设置组权限,200,OK,中间件相关接口-真实生产环境-github✅✅ 3-1,text,true,,572,295,1,1,http://13.214.249.50:8080/crm20/set_group_permission,522,0,0
+1792648994946,91,真实生产环境-设置品种交易模式,200,OK,中间件相关接口-真实生产环境-github✅✅ 3-1,text,true,,574,278,1,1,http://13.214.249.50:8080/crm20/set_symbol_trade_mode,90,0,0
