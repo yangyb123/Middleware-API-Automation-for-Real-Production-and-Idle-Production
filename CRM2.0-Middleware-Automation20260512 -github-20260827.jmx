@@ -2180,7 +2180,7 @@ vars.put(&quot;loop_count_Loop10&quot;, String.valueOf(count + 1));</stringProp>
         </hashTree>
         <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="空闲生产环境-持仓订单事务">
           <boolProp name="TransactionController.parent">true</boolProp>
-          <boolProp name="TransactionController.includeTimers">false</boolProp>
+          <boolProp name="TransactionController.includeTimers">true</boolProp>
         </TransactionController>
         <hashTree>
           <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="空闲生产环境-持仓订单">
@@ -2234,7 +2234,7 @@ vars.put(&quot;loop_count_Loop1&quot;, String.valueOf(count + 1));</stringProp>
         </hashTree>
         <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="空闲生产环境-待处理/历史订单事务">
           <boolProp name="TransactionController.parent">true</boolProp>
-          <boolProp name="TransactionController.includeTimers">false</boolProp>
+          <boolProp name="TransactionController.includeTimers">true</boolProp>
         </TransactionController>
         <hashTree>
           <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="空闲生产环境-待处理/历史订单">
@@ -2284,15 +2284,20 @@ vars.put(&quot;loop_count_Loop2&quot;, String.valueOf(count + 1));</stringProp>
             </hashTree>
           </hashTree>
         </hashTree>
-        <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="汇总的已平仓仓位(进出交易)">
-          <stringProp name="LoopController.loops">2</stringProp>
-        </LoopController>
+        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="汇总的已平仓仓位(进出交易)事务">
+          <boolProp name="TransactionController.parent">true</boolProp>
+          <boolProp name="TransactionController.includeTimers">true</boolProp>
+        </TransactionController>
         <hashTree>
-          <BeanShellPreProcessor guiclass="TestBeanGUI" testclass="BeanShellPreProcessor" testname="BeanShell 预处理程序" enabled="true">
-            <boolProp name="resetInterpreter">false</boolProp>
-            <stringProp name="parameters"></stringProp>
-            <stringProp name="filename"></stringProp>
-            <stringProp name="script">// 每个循环自己独立的计数器，不会互相干扰
+          <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="空闲生产-汇总的已平仓仓位(进出交易)">
+            <stringProp name="LoopController.loops">2</stringProp>
+          </LoopController>
+          <hashTree>
+            <BeanShellPreProcessor guiclass="TestBeanGUI" testclass="BeanShellPreProcessor" testname="BeanShell 预处理程序" enabled="true">
+              <boolProp name="resetInterpreter">false</boolProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="script">// 每个循环自己独立的计数器，不会互相干扰
 int count = vars.get(&quot;loop_count_Loop3&quot;) == null ? 0 : Integer.parseInt(vars.get(&quot;loop_count_Loop3&quot;));
 
 if (count == 0) {
@@ -2307,43 +2312,49 @@ if (count == 0) {
 
 // 计数器+1
 vars.put(&quot;loop_count_Loop3&quot;, String.valueOf(count + 1));</stringProp>
-          </BeanShellPreProcessor>
-          <hashTree/>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="空闲生产环境-汇总的已平仓仓位(进出交易)" enabled="true">
-            <stringProp name="HTTPSampler.domain">${free production environment}</stringProp>
-            <stringProp name="HTTPSampler.port">${port}</stringProp>
-            <stringProp name="HTTPSampler.protocol">http</stringProp>
-            <stringProp name="HTTPSampler.path">/crm20/get_history_position_ex?instanceid=${instanceid_val}&amp;login=${login_val}&amp;close_time_utc_ms__gte=1776030673000&amp;_sort_by=close_time_utc_ms&amp;_sort_order=desc</stringProp>
-            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-            <stringProp name="HTTPSampler.method">GET</stringProp>
-            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-            <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
-            <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="用户定义的变量">
-              <collectionProp name="Arguments.arguments"/>
-            </elementProp>
-          </HTTPSamplerProxy>
-          <hashTree>
-            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="响应断言" enabled="true">
-              <collectionProp name="Asserion.test_strings">
-                <stringProp name="103149417">login</stringProp>
-              </collectionProp>
-              <stringProp name="Assertion.custom_message"></stringProp>
-              <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
-              <boolProp name="Assertion.assume_success">false</boolProp>
-              <intProp name="Assertion.test_type">16</intProp>
-            </ResponseAssertion>
+            </BeanShellPreProcessor>
             <hashTree/>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="空闲生产环境-汇总的已平仓仓位(进出交易)" enabled="true">
+              <stringProp name="HTTPSampler.domain">${free production environment}</stringProp>
+              <stringProp name="HTTPSampler.port">${port}</stringProp>
+              <stringProp name="HTTPSampler.protocol">http</stringProp>
+              <stringProp name="HTTPSampler.path">/crm20/get_history_position_ex?instanceid=${instanceid_val}&amp;login=${login_val}&amp;close_time_utc_ms__gte=1776030673000&amp;_sort_by=close_time_utc_ms&amp;_sort_order=desc</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <stringProp name="HTTPSampler.method">GET</stringProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="用户定义的变量">
+                <collectionProp name="Arguments.arguments"/>
+              </elementProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="响应断言" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="103149417">login</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.custom_message"></stringProp>
+                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">16</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+            </hashTree>
           </hashTree>
         </hashTree>
-        <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="符号规格和实时报价" enabled="true">
-          <stringProp name="LoopController.loops">2</stringProp>
-        </LoopController>
+        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="空闲生产-符号规格和实时报价事务" enabled="true">
+          <boolProp name="TransactionController.parent">true</boolProp>
+          <boolProp name="TransactionController.includeTimers">true</boolProp>
+        </TransactionController>
         <hashTree>
-          <BeanShellPreProcessor guiclass="TestBeanGUI" testclass="BeanShellPreProcessor" testname="BeanShell 预处理程序" enabled="true">
-            <boolProp name="resetInterpreter">false</boolProp>
-            <stringProp name="parameters"></stringProp>
-            <stringProp name="filename"></stringProp>
-            <stringProp name="script">// 专属计数器：loop_count_Loop4
+          <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="符号规格和实时报价">
+            <stringProp name="LoopController.loops">2</stringProp>
+          </LoopController>
+          <hashTree>
+            <BeanShellPreProcessor guiclass="TestBeanGUI" testclass="BeanShellPreProcessor" testname="BeanShell 预处理程序" enabled="true">
+              <boolProp name="resetInterpreter">false</boolProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="script">// 专属计数器：loop_count_Loop4
 int count = vars.get(&quot;loop_count_Loop4&quot;) == null ? 0 : Integer.parseInt(vars.get(&quot;loop_count_Loop4&quot;));
 
 if (count == 0) {
@@ -2355,13 +2366,45 @@ if (count == 0) {
 }
 
 vars.put(&quot;loop_count_Loop4&quot;, String.valueOf(count + 1));</stringProp>
-          </BeanShellPreProcessor>
-          <hashTree/>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="空闲生产环境-符号规格和实时报价" enabled="true">
+            </BeanShellPreProcessor>
+            <hashTree/>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="空闲生产环境-符号规格和实时报价" enabled="true">
+              <stringProp name="HTTPSampler.domain">${free production environment}</stringProp>
+              <stringProp name="HTTPSampler.port">${port}</stringProp>
+              <stringProp name="HTTPSampler.protocol">http</stringProp>
+              <stringProp name="HTTPSampler.path">/crm20/get_symbol_ex?instanceid=${instanceid_val}&amp;name=${symbol_val}</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <stringProp name="HTTPSampler.method">GET</stringProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="用户定义的变量">
+                <collectionProp name="Arguments.arguments"/>
+              </elementProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="响应断言" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="3373707">name</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.custom_message"></stringProp>
+                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">16</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+            </hashTree>
+          </hashTree>
+        </hashTree>
+        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="空闲生产-跨所有实例的账户级财务指标(权益:利润、利润率)事务" enabled="true">
+          <boolProp name="TransactionController.parent">true</boolProp>
+          <boolProp name="TransactionController.includeTimers">true</boolProp>
+        </TransactionController>
+        <hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="跨所有实例的账户级财务指标(权益:利润、利润率)">
             <stringProp name="HTTPSampler.domain">${free production environment}</stringProp>
             <stringProp name="HTTPSampler.port">${port}</stringProp>
             <stringProp name="HTTPSampler.protocol">http</stringProp>
-            <stringProp name="HTTPSampler.path">/crm20/get_symbol_ex?instanceid=${instanceid_val}&amp;name=${symbol_val}</stringProp>
+            <stringProp name="HTTPSampler.path">/crm20/get_account_metrics_ex?login__in=${production account51},${production account41}</stringProp>
             <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
             <stringProp name="HTTPSampler.method">GET</stringProp>
             <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
@@ -2373,7 +2416,7 @@ vars.put(&quot;loop_count_Loop4&quot;, String.valueOf(count + 1));</stringProp>
           <hashTree>
             <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="响应断言" enabled="true">
               <collectionProp name="Asserion.test_strings">
-                <stringProp name="3373707">name</stringProp>
+                <stringProp name="103149417">login</stringProp>
               </collectionProp>
               <stringProp name="Assertion.custom_message"></stringProp>
               <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
@@ -2383,70 +2426,56 @@ vars.put(&quot;loop_count_Loop4&quot;, String.valueOf(count + 1));</stringProp>
             <hashTree/>
           </hashTree>
         </hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="跨所有实例的账户级财务指标(权益:利润、利润率)" enabled="true">
-          <stringProp name="HTTPSampler.domain">${free production environment}</stringProp>
-          <stringProp name="HTTPSampler.port">${port}</stringProp>
-          <stringProp name="HTTPSampler.protocol">http</stringProp>
-          <stringProp name="HTTPSampler.path">/crm20/get_account_metrics_ex?login__in=${production account51},${production account41}</stringProp>
-          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-          <stringProp name="HTTPSampler.method">GET</stringProp>
-          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-          <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
-          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="用户定义的变量">
-            <collectionProp name="Arguments.arguments"/>
-          </elementProp>
-        </HTTPSamplerProxy>
+        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="空闲生产-空闲生产环境-多维度聚合摘要(按实例、货币、组、风险、绩效)-事务控制器">
+          <boolProp name="TransactionController.parent">true</boolProp>
+          <boolProp name="TransactionController.includeTimers">true</boolProp>
+        </TransactionController>
         <hashTree>
-          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="响应断言" enabled="true">
-            <collectionProp name="Asserion.test_strings">
-              <stringProp name="103149417">login</stringProp>
-            </collectionProp>
-            <stringProp name="Assertion.custom_message"></stringProp>
-            <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
-            <boolProp name="Assertion.assume_success">false</boolProp>
-            <intProp name="Assertion.test_type">16</intProp>
-          </ResponseAssertion>
-          <hashTree/>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="空闲生产环境-多维度聚合摘要(按实例、货币、组、风险、绩效)">
+            <stringProp name="HTTPSampler.domain">${free production environment}</stringProp>
+            <stringProp name="HTTPSampler.port">${port}</stringProp>
+            <stringProp name="HTTPSampler.protocol">http</stringProp>
+            <stringProp name="HTTPSampler.path">/crm20/get_account_metrics_summary_ex?_dimensions=overall,by_instance</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <stringProp name="HTTPSampler.method">GET</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="用户定义的变量">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="响应断言" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="-758568266">server_type</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.custom_message"></stringProp>
+              <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">16</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+          </hashTree>
         </hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="空闲生产环境-多维度聚合摘要(按实例、货币、组、风险、绩效)" enabled="true">
-          <stringProp name="HTTPSampler.domain">${free production environment}</stringProp>
-          <stringProp name="HTTPSampler.port">${port}</stringProp>
-          <stringProp name="HTTPSampler.protocol">http</stringProp>
-          <stringProp name="HTTPSampler.path">/crm20/get_account_metrics_summary_ex?_dimensions=overall,by_instance</stringProp>
-          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-          <stringProp name="HTTPSampler.method">GET</stringProp>
-          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-          <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
-          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="用户定义的变量">
-            <collectionProp name="Arguments.arguments"/>
-          </elementProp>
-        </HTTPSamplerProxy>
+        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="空闲生产-空闲生产环境-自定义统计聚合(SUM、AVG、MINMAX等)，支持可选分组事务">
+          <boolProp name="TransactionController.parent">true</boolProp>
+          <boolProp name="TransactionController.includeTimers">true</boolProp>
+        </TransactionController>
         <hashTree>
-          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="响应断言" enabled="true">
-            <collectionProp name="Asserion.test_strings">
-              <stringProp name="-758568266">server_type</stringProp>
-            </collectionProp>
-            <stringProp name="Assertion.custom_message"></stringProp>
-            <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
-            <boolProp name="Assertion.assume_success">false</boolProp>
-            <intProp name="Assertion.test_type">16</intProp>
-          </ResponseAssertion>
-          <hashTree/>
-        </hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="空闲生产环境-自定义统计聚合(SUM、AVG、MINMAX等)，支持可选分组" enabled="true">
-          <stringProp name="HTTPSampler.domain">${free production environment}</stringProp>
-          <stringProp name="HTTPSampler.port">${port}</stringProp>
-          <stringProp name="HTTPSampler.protocol">http</stringProp>
-          <stringProp name="HTTPSampler.path">/crm20/get_account_metrics_stat_ex?</stringProp>
-          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-          <stringProp name="HTTPSampler.method">POST</stringProp>
-          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
-          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
-            <collectionProp name="Arguments.arguments">
-              <elementProp name="" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">{&#xd;
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="空闲生产环境-自定义统计聚合(SUM、AVG、MINMAX等)，支持可选分组">
+            <stringProp name="HTTPSampler.domain">${free production environment}</stringProp>
+            <stringProp name="HTTPSampler.port">${port}</stringProp>
+            <stringProp name="HTTPSampler.protocol">http</stringProp>
+            <stringProp name="HTTPSampler.path">/crm20/get_account_metrics_stat_ex?</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <stringProp name="HTTPSampler.method">POST</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value">{&#xd;
 &quot;login__in&quot;: &quot;${production account51},${production account41}&quot;,&#xd;
 &quot;_stat&quot;: {&#xd;
 &quot;equity&quot;: [&quot;sum&quot;, &quot;avg&quot;],&#xd;
@@ -2455,32 +2484,38 @@ vars.put(&quot;loop_count_Loop4&quot;, String.valueOf(count + 1));</stringProp>
 },&#xd;
 &quot;_group_by&quot;: &quot;currency&quot;&#xd;
 }</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-              </elementProp>
-            </collectionProp>
-          </elementProp>
-        </HTTPSamplerProxy>
-        <hashTree>
-          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="响应断言" enabled="true">
-            <collectionProp name="Asserion.test_strings">
-              <stringProp name="-339185956">balance</stringProp>
-            </collectionProp>
-            <stringProp name="Assertion.custom_message"></stringProp>
-            <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
-            <boolProp name="Assertion.assume_success">false</boolProp>
-            <intProp name="Assertion.test_type">16</intProp>
-          </ResponseAssertion>
-          <hashTree/>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="响应断言" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="-339185956">balance</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.custom_message"></stringProp>
+              <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">16</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+          </hashTree>
         </hashTree>
-        <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="获取挂单订单" enabled="true">
-          <stringProp name="LoopController.loops">2</stringProp>
-        </LoopController>
+        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="空闲生产-获取挂单订单事务">
+          <boolProp name="TransactionController.parent">true</boolProp>
+          <boolProp name="TransactionController.includeTimers">true</boolProp>
+        </TransactionController>
         <hashTree>
-          <BeanShellPreProcessor guiclass="TestBeanGUI" testclass="BeanShellPreProcessor" testname="BeanShell 预处理程序" enabled="true">
-            <boolProp name="resetInterpreter">false</boolProp>
-            <stringProp name="parameters"></stringProp>
-            <stringProp name="filename"></stringProp>
-            <stringProp name="script">int count = vars.get(&quot;loop_count_Loop5&quot;) == null ? 0 : Integer.parseInt(vars.get(&quot;loop_count_Loop5&quot;));
+          <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="获取挂单订单">
+            <stringProp name="LoopController.loops">2</stringProp>
+          </LoopController>
+          <hashTree>
+            <BeanShellPreProcessor guiclass="TestBeanGUI" testclass="BeanShellPreProcessor" testname="BeanShell 预处理程序" enabled="true">
+              <boolProp name="resetInterpreter">false</boolProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="script">int count = vars.get(&quot;loop_count_Loop5&quot;) == null ? 0 : Integer.parseInt(vars.get(&quot;loop_count_Loop5&quot;));
 
 if (count == 0) {
     vars.put(&quot;login_val&quot;, vars.get(&quot;production account51&quot;));
@@ -2491,43 +2526,49 @@ if (count == 0) {
 }
 
 vars.put(&quot;loop_count_Loop5&quot;, String.valueOf(count + 1));</stringProp>
-          </BeanShellPreProcessor>
-          <hashTree/>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="空闲生产环境-获取挂单信息" enabled="true">
-            <stringProp name="HTTPSampler.domain">${free production environment}</stringProp>
-            <stringProp name="HTTPSampler.port">${port}</stringProp>
-            <stringProp name="HTTPSampler.protocol">http</stringProp>
-            <stringProp name="HTTPSampler.path">/crm20/get_order_info?instanceid=${instanceid_val}&amp;login=${login_val}</stringProp>
-            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-            <stringProp name="HTTPSampler.method">GET</stringProp>
-            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-            <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
-            <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="用户定义的变量">
-              <collectionProp name="Arguments.arguments"/>
-            </elementProp>
-          </HTTPSamplerProxy>
-          <hashTree>
-            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="响应断言" enabled="true">
-              <collectionProp name="Asserion.test_strings">
-                <stringProp name="103149417">login</stringProp>
-              </collectionProp>
-              <stringProp name="Assertion.custom_message"></stringProp>
-              <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
-              <boolProp name="Assertion.assume_success">false</boolProp>
-              <intProp name="Assertion.test_type">16</intProp>
-            </ResponseAssertion>
+            </BeanShellPreProcessor>
             <hashTree/>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="空闲生产环境-获取挂单信息" enabled="true">
+              <stringProp name="HTTPSampler.domain">${free production environment}</stringProp>
+              <stringProp name="HTTPSampler.port">${port}</stringProp>
+              <stringProp name="HTTPSampler.protocol">http</stringProp>
+              <stringProp name="HTTPSampler.path">/crm20/get_order_info?instanceid=${instanceid_val}&amp;login=${login_val}</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <stringProp name="HTTPSampler.method">GET</stringProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="用户定义的变量">
+                <collectionProp name="Arguments.arguments"/>
+              </elementProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="响应断言" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="103149417">login</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.custom_message"></stringProp>
+                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">16</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+            </hashTree>
           </hashTree>
         </hashTree>
-        <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="获取持仓订单" enabled="true">
-          <stringProp name="LoopController.loops">2</stringProp>
-        </LoopController>
+        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="空闲生产-获取持仓订单事务">
+          <boolProp name="TransactionController.parent">true</boolProp>
+          <boolProp name="TransactionController.includeTimers">true</boolProp>
+        </TransactionController>
         <hashTree>
-          <BeanShellPreProcessor guiclass="TestBeanGUI" testclass="BeanShellPreProcessor" testname="BeanShell 预处理程序" enabled="true">
-            <boolProp name="resetInterpreter">false</boolProp>
-            <stringProp name="parameters"></stringProp>
-            <stringProp name="filename"></stringProp>
-            <stringProp name="script">int count = vars.get(&quot;loop_count_Loop6&quot;) == null ? 0 : Integer.parseInt(vars.get(&quot;loop_count_Loop6&quot;));
+          <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="获取持仓订单">
+            <stringProp name="LoopController.loops">2</stringProp>
+          </LoopController>
+          <hashTree>
+            <BeanShellPreProcessor guiclass="TestBeanGUI" testclass="BeanShellPreProcessor" testname="BeanShell 预处理程序" enabled="true">
+              <boolProp name="resetInterpreter">false</boolProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="script">int count = vars.get(&quot;loop_count_Loop6&quot;) == null ? 0 : Integer.parseInt(vars.get(&quot;loop_count_Loop6&quot;));
 
 if (count == 0) {
     vars.put(&quot;login_val&quot;, vars.get(&quot;production account51&quot;));
@@ -2538,44 +2579,50 @@ if (count == 0) {
 }
 
 vars.put(&quot;loop_count_Loop6&quot;, String.valueOf(count + 1));</stringProp>
-          </BeanShellPreProcessor>
-          <hashTree/>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="空闲生产环境-获取持仓订单" enabled="true">
-            <stringProp name="HTTPSampler.domain">${free production environment}</stringProp>
-            <stringProp name="HTTPSampler.port">${port}</stringProp>
-            <stringProp name="HTTPSampler.protocol">http</stringProp>
-            <stringProp name="HTTPSampler.path">/crm20/get_position_info?instanceid=${instanceid_val}&amp;login=${login_val}</stringProp>
-            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-            <stringProp name="HTTPSampler.method">GET</stringProp>
-            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-            <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
-            <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="用户定义的变量">
-              <collectionProp name="Arguments.arguments"/>
-            </elementProp>
-          </HTTPSamplerProxy>
-          <hashTree>
-            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="响应断言" enabled="true">
-              <collectionProp name="Asserion.test_strings">
-                <stringProp name="103149417">login</stringProp>
-                <stringProp name="73596745">Login</stringProp>
-              </collectionProp>
-              <stringProp name="Assertion.custom_message"></stringProp>
-              <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
-              <boolProp name="Assertion.assume_success">false</boolProp>
-              <intProp name="Assertion.test_type">48</intProp>
-            </ResponseAssertion>
+            </BeanShellPreProcessor>
             <hashTree/>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="空闲生产环境-获取持仓订单" enabled="true">
+              <stringProp name="HTTPSampler.domain">${free production environment}</stringProp>
+              <stringProp name="HTTPSampler.port">${port}</stringProp>
+              <stringProp name="HTTPSampler.protocol">http</stringProp>
+              <stringProp name="HTTPSampler.path">/crm20/get_position_info?instanceid=${instanceid_val}&amp;login=${login_val}</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <stringProp name="HTTPSampler.method">GET</stringProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="用户定义的变量">
+                <collectionProp name="Arguments.arguments"/>
+              </elementProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="响应断言" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="103149417">login</stringProp>
+                  <stringProp name="73596745">Login</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.custom_message"></stringProp>
+                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">48</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+            </hashTree>
           </hashTree>
         </hashTree>
-        <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="获取历史订单" enabled="true">
-          <stringProp name="LoopController.loops">2</stringProp>
-        </LoopController>
+        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="空闲生产-获取历史订单事务">
+          <boolProp name="TransactionController.parent">true</boolProp>
+          <boolProp name="TransactionController.includeTimers">true</boolProp>
+        </TransactionController>
         <hashTree>
-          <BeanShellPreProcessor guiclass="TestBeanGUI" testclass="BeanShellPreProcessor" testname="BeanShell 预处理程序" enabled="true">
-            <boolProp name="resetInterpreter">false</boolProp>
-            <stringProp name="parameters"></stringProp>
-            <stringProp name="filename"></stringProp>
-            <stringProp name="script">int count = vars.get(&quot;loop_count_Loop7&quot;) == null ? 0 : Integer.parseInt(vars.get(&quot;loop_count_Loop7&quot;));
+          <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="获取历史订单">
+            <stringProp name="LoopController.loops">2</stringProp>
+          </LoopController>
+          <hashTree>
+            <BeanShellPreProcessor guiclass="TestBeanGUI" testclass="BeanShellPreProcessor" testname="BeanShell 预处理程序" enabled="true">
+              <boolProp name="resetInterpreter">false</boolProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="script">int count = vars.get(&quot;loop_count_Loop7&quot;) == null ? 0 : Integer.parseInt(vars.get(&quot;loop_count_Loop7&quot;));
 
 if (count == 0) {
     vars.put(&quot;login_val&quot;, vars.get(&quot;production account51&quot;));
@@ -2586,44 +2633,50 @@ if (count == 0) {
 }
 
 vars.put(&quot;loop_count_Loop7&quot;, String.valueOf(count + 1));</stringProp>
-          </BeanShellPreProcessor>
-          <hashTree/>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="空闲生产环境-获取历史" enabled="true">
-            <stringProp name="HTTPSampler.domain">${free production environment}</stringProp>
-            <stringProp name="HTTPSampler.port">${port}</stringProp>
-            <stringProp name="HTTPSampler.protocol">http</stringProp>
-            <stringProp name="HTTPSampler.path">crm20/get_history_position?instanceid=${instanceid_val}&amp;login=${login_val}</stringProp>
-            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-            <stringProp name="HTTPSampler.method">GET</stringProp>
-            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-            <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
-            <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="用户定义的变量">
-              <collectionProp name="Arguments.arguments"/>
-            </elementProp>
-          </HTTPSamplerProxy>
-          <hashTree>
-            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="响应断言" enabled="true">
-              <collectionProp name="Asserion.test_strings">
-                <stringProp name="103149417">login</stringProp>
-                <stringProp name="73596745">Login</stringProp>
-              </collectionProp>
-              <stringProp name="Assertion.custom_message"></stringProp>
-              <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
-              <boolProp name="Assertion.assume_success">false</boolProp>
-              <intProp name="Assertion.test_type">48</intProp>
-            </ResponseAssertion>
+            </BeanShellPreProcessor>
             <hashTree/>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="空闲生产环境-获取历史" enabled="true">
+              <stringProp name="HTTPSampler.domain">${free production environment}</stringProp>
+              <stringProp name="HTTPSampler.port">${port}</stringProp>
+              <stringProp name="HTTPSampler.protocol">http</stringProp>
+              <stringProp name="HTTPSampler.path">crm20/get_history_position?instanceid=${instanceid_val}&amp;login=${login_val}</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <stringProp name="HTTPSampler.method">GET</stringProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="用户定义的变量">
+                <collectionProp name="Arguments.arguments"/>
+              </elementProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="响应断言" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="103149417">login</stringProp>
+                  <stringProp name="73596745">Login</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.custom_message"></stringProp>
+                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">48</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+            </hashTree>
           </hashTree>
         </hashTree>
-        <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="获取用户信息" enabled="true">
-          <stringProp name="LoopController.loops">2</stringProp>
-        </LoopController>
+        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="空闲生产-获取用户信息事务">
+          <boolProp name="TransactionController.parent">true</boolProp>
+          <boolProp name="TransactionController.includeTimers">true</boolProp>
+        </TransactionController>
         <hashTree>
-          <BeanShellPreProcessor guiclass="TestBeanGUI" testclass="BeanShellPreProcessor" testname="BeanShell 预处理程序" enabled="true">
-            <boolProp name="resetInterpreter">false</boolProp>
-            <stringProp name="parameters"></stringProp>
-            <stringProp name="filename"></stringProp>
-            <stringProp name="script">int count = vars.get(&quot;loop_count_Loop8&quot;) == null ? 0 : Integer.parseInt(vars.get(&quot;loop_count_Loop8&quot;));
+          <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="获取用户信息">
+            <stringProp name="LoopController.loops">2</stringProp>
+          </LoopController>
+          <hashTree>
+            <BeanShellPreProcessor guiclass="TestBeanGUI" testclass="BeanShellPreProcessor" testname="BeanShell 预处理程序" enabled="true">
+              <boolProp name="resetInterpreter">false</boolProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="script">int count = vars.get(&quot;loop_count_Loop8&quot;) == null ? 0 : Integer.parseInt(vars.get(&quot;loop_count_Loop8&quot;));
 
 if (count == 0) {
     vars.put(&quot;login_val&quot;, vars.get(&quot;production account51&quot;));
@@ -2634,44 +2687,50 @@ if (count == 0) {
 }
 
 vars.put(&quot;loop_count_Loop8&quot;, String.valueOf(count + 1));</stringProp>
-          </BeanShellPreProcessor>
-          <hashTree/>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="空闲生产环境-获取用户信息" enabled="true">
-            <stringProp name="HTTPSampler.domain">${free production environment}</stringProp>
-            <stringProp name="HTTPSampler.port">${port}</stringProp>
-            <stringProp name="HTTPSampler.protocol">http</stringProp>
-            <stringProp name="HTTPSampler.path">crm20/get_user_info?instanceid=${instanceid_val}&amp;login=${login_val}</stringProp>
-            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-            <stringProp name="HTTPSampler.method">GET</stringProp>
-            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-            <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
-            <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="用户定义的变量">
-              <collectionProp name="Arguments.arguments"/>
-            </elementProp>
-          </HTTPSamplerProxy>
-          <hashTree>
-            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="响应断言" enabled="true">
-              <collectionProp name="Asserion.test_strings">
-                <stringProp name="103149417">login</stringProp>
-                <stringProp name="73596745">Login</stringProp>
-              </collectionProp>
-              <stringProp name="Assertion.custom_message"></stringProp>
-              <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
-              <boolProp name="Assertion.assume_success">false</boolProp>
-              <intProp name="Assertion.test_type">48</intProp>
-            </ResponseAssertion>
+            </BeanShellPreProcessor>
             <hashTree/>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="空闲生产环境-获取用户信息" enabled="true">
+              <stringProp name="HTTPSampler.domain">${free production environment}</stringProp>
+              <stringProp name="HTTPSampler.port">${port}</stringProp>
+              <stringProp name="HTTPSampler.protocol">http</stringProp>
+              <stringProp name="HTTPSampler.path">crm20/get_user_info?instanceid=${instanceid_val}&amp;login=${login_val}</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <stringProp name="HTTPSampler.method">GET</stringProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="用户定义的变量">
+                <collectionProp name="Arguments.arguments"/>
+              </elementProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="响应断言" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="103149417">login</stringProp>
+                  <stringProp name="73596745">Login</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.custom_message"></stringProp>
+                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">48</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+            </hashTree>
           </hashTree>
         </hashTree>
-        <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="获取群组信息" enabled="true">
-          <stringProp name="LoopController.loops">2</stringProp>
-        </LoopController>
+        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="空闲生产-获取群组信息事务">
+          <boolProp name="TransactionController.parent">true</boolProp>
+          <boolProp name="TransactionController.includeTimers">true</boolProp>
+        </TransactionController>
         <hashTree>
-          <BeanShellPreProcessor guiclass="TestBeanGUI" testclass="BeanShellPreProcessor" testname="BeanShell 预处理程序" enabled="true">
-            <boolProp name="resetInterpreter">false</boolProp>
-            <stringProp name="parameters"></stringProp>
-            <stringProp name="filename"></stringProp>
-            <stringProp name="script">int count = vars.get(&quot;loop_count_Loop9&quot;) == null ? 0 : Integer.parseInt(vars.get(&quot;loop_count_Loop9&quot;));
+          <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="获取群组信息">
+            <stringProp name="LoopController.loops">2</stringProp>
+          </LoopController>
+          <hashTree>
+            <BeanShellPreProcessor guiclass="TestBeanGUI" testclass="BeanShellPreProcessor" testname="BeanShell 预处理程序" enabled="true">
+              <boolProp name="resetInterpreter">false</boolProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="script">int count = vars.get(&quot;loop_count_Loop9&quot;) == null ? 0 : Integer.parseInt(vars.get(&quot;loop_count_Loop9&quot;));
 
 if (count == 0) {
     vars.put(&quot;instanceid_val&quot;, vars.get(&quot;mt5instanceid&quot;));
@@ -2680,43 +2739,49 @@ if (count == 0) {
 }
 
 vars.put(&quot;loop_count_Loop9&quot;, String.valueOf(count + 1));</stringProp>
-          </BeanShellPreProcessor>
-          <hashTree/>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="空闲生产环境-获取群组信息" enabled="true">
-            <stringProp name="HTTPSampler.domain">${free production environment}</stringProp>
-            <stringProp name="HTTPSampler.port">${port}</stringProp>
-            <stringProp name="HTTPSampler.protocol">http</stringProp>
-            <stringProp name="HTTPSampler.path">/crm20/get_groups_info?instanceid=${instanceid_val}</stringProp>
-            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-            <stringProp name="HTTPSampler.method">GET</stringProp>
-            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-            <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
-            <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="用户定义的变量">
-              <collectionProp name="Arguments.arguments"/>
-            </elementProp>
-          </HTTPSamplerProxy>
-          <hashTree>
-            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="响应断言" enabled="true">
-              <collectionProp name="Asserion.test_strings">
-                <stringProp name="69076575">Group</stringProp>
-              </collectionProp>
-              <stringProp name="Assertion.custom_message"></stringProp>
-              <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
-              <boolProp name="Assertion.assume_success">false</boolProp>
-              <intProp name="Assertion.test_type">16</intProp>
-            </ResponseAssertion>
+            </BeanShellPreProcessor>
             <hashTree/>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="空闲生产环境-获取群组信息" enabled="true">
+              <stringProp name="HTTPSampler.domain">${free production environment}</stringProp>
+              <stringProp name="HTTPSampler.port">${port}</stringProp>
+              <stringProp name="HTTPSampler.protocol">http</stringProp>
+              <stringProp name="HTTPSampler.path">/crm20/get_groups_info?instanceid=${instanceid_val}</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <stringProp name="HTTPSampler.method">GET</stringProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="用户定义的变量">
+                <collectionProp name="Arguments.arguments"/>
+              </elementProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="响应断言" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="69076575">Group</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.custom_message"></stringProp>
+                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">16</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+            </hashTree>
           </hashTree>
         </hashTree>
-        <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="获取货币信息" enabled="true">
-          <stringProp name="LoopController.loops">2</stringProp>
-        </LoopController>
+        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="空闲生产-获取货币信息事务">
+          <boolProp name="TransactionController.parent">true</boolProp>
+          <boolProp name="TransactionController.includeTimers">true</boolProp>
+        </TransactionController>
         <hashTree>
-          <BeanShellPreProcessor guiclass="TestBeanGUI" testclass="BeanShellPreProcessor" testname="BeanShell 预处理程序" enabled="true">
-            <boolProp name="resetInterpreter">false</boolProp>
-            <stringProp name="parameters"></stringProp>
-            <stringProp name="filename"></stringProp>
-            <stringProp name="script">int count = vars.get(&quot;loop_count_Loop10&quot;) == null ? 0 : Integer.parseInt(vars.get(&quot;loop_count_Loop10&quot;));
+          <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="获取货币信息">
+            <stringProp name="LoopController.loops">2</stringProp>
+          </LoopController>
+          <hashTree>
+            <BeanShellPreProcessor guiclass="TestBeanGUI" testclass="BeanShellPreProcessor" testname="BeanShell 预处理程序" enabled="true">
+              <boolProp name="resetInterpreter">false</boolProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="script">int count = vars.get(&quot;loop_count_Loop10&quot;) == null ? 0 : Integer.parseInt(vars.get(&quot;loop_count_Loop10&quot;));
 
 if (count == 0) {
     vars.put(&quot;instanceid_val&quot;, vars.get(&quot;mt5instanceid&quot;));
@@ -2725,13 +2790,45 @@ if (count == 0) {
 }
 
 vars.put(&quot;loop_count_Loop10&quot;, String.valueOf(count + 1));</stringProp>
-          </BeanShellPreProcessor>
-          <hashTree/>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="空闲生产环境-获取货币信息" enabled="true">
+            </BeanShellPreProcessor>
+            <hashTree/>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="空闲生产环境-获取货币信息" enabled="true">
+              <stringProp name="HTTPSampler.domain">${free production environment}</stringProp>
+              <stringProp name="HTTPSampler.port">${port}</stringProp>
+              <stringProp name="HTTPSampler.protocol">http</stringProp>
+              <stringProp name="HTTPSampler.path">/crm20/get_symbols_info?instanceid=${instanceid_val}</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <stringProp name="HTTPSampler.method">GET</stringProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="用户定义的变量">
+                <collectionProp name="Arguments.arguments"/>
+              </elementProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="响应断言" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="69076575">Group</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.custom_message"></stringProp>
+                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">16</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+            </hashTree>
+          </hashTree>
+        </hashTree>
+        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="空闲生产环境-获取服务器信息事务">
+          <boolProp name="TransactionController.parent">true</boolProp>
+          <boolProp name="TransactionController.includeTimers">true</boolProp>
+        </TransactionController>
+        <hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="空闲生产环境-获取服务器信息">
             <stringProp name="HTTPSampler.domain">${free production environment}</stringProp>
             <stringProp name="HTTPSampler.port">${port}</stringProp>
             <stringProp name="HTTPSampler.protocol">http</stringProp>
-            <stringProp name="HTTPSampler.path">/crm20/get_symbols_info?instanceid=${instanceid_val}</stringProp>
+            <stringProp name="HTTPSampler.path">/crm20/get_mt_server_info</stringProp>
             <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
             <stringProp name="HTTPSampler.method">GET</stringProp>
             <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
@@ -2743,7 +2840,7 @@ vars.put(&quot;loop_count_Loop10&quot;, String.valueOf(count + 1));</stringProp>
           <hashTree>
             <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="响应断言" enabled="true">
               <collectionProp name="Asserion.test_strings">
-                <stringProp name="69076575">Group</stringProp>
+                <stringProp name="902025328">instanceid</stringProp>
               </collectionProp>
               <stringProp name="Assertion.custom_message"></stringProp>
               <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
@@ -2753,246 +2850,16 @@ vars.put(&quot;loop_count_Loop10&quot;, String.valueOf(count + 1));</stringProp>
             <hashTree/>
           </hashTree>
         </hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="空闲生产环境-获取服务器信息" enabled="true">
-          <stringProp name="HTTPSampler.domain">${free production environment}</stringProp>
-          <stringProp name="HTTPSampler.port">${port}</stringProp>
-          <stringProp name="HTTPSampler.protocol">http</stringProp>
-          <stringProp name="HTTPSampler.path">/crm20/get_mt_server_info</stringProp>
-          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-          <stringProp name="HTTPSampler.method">GET</stringProp>
-          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-          <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
-          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="用户定义的变量">
-            <collectionProp name="Arguments.arguments"/>
-          </elementProp>
-        </HTTPSamplerProxy>
+        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="空闲生产-获取归档账户事务">
+          <boolProp name="TransactionController.parent">true</boolProp>
+          <boolProp name="TransactionController.includeTimers">true</boolProp>
+        </TransactionController>
         <hashTree>
-          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="响应断言" enabled="true">
-            <collectionProp name="Asserion.test_strings">
-              <stringProp name="902025328">instanceid</stringProp>
-            </collectionProp>
-            <stringProp name="Assertion.custom_message"></stringProp>
-            <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
-            <boolProp name="Assertion.assume_success">false</boolProp>
-            <intProp name="Assertion.test_type">16</intProp>
-          </ResponseAssertion>
-          <hashTree/>
-        </hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="空闲生产环境-获取归档账户" enabled="true">
-          <stringProp name="HTTPSampler.domain">${free production environment}</stringProp>
-          <stringProp name="HTTPSampler.port">${port}</stringProp>
-          <stringProp name="HTTPSampler.protocol">http</stringProp>
-          <stringProp name="HTTPSampler.path">/crm20/get_archive_user</stringProp>
-          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-          <stringProp name="HTTPSampler.method">POST</stringProp>
-          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
-          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
-            <collectionProp name="Arguments.arguments">
-              <elementProp name="" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">{&#xd;
-    &quot;instanceid&quot;: &quot;MT5_1&quot;&#xd;
-}</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-              </elementProp>
-            </collectionProp>
-          </elementProp>
-        </HTTPSamplerProxy>
-        <hashTree>
-          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="响应断言" enabled="true">
-            <collectionProp name="Asserion.test_strings">
-              <stringProp name="73596745">Login</stringProp>
-            </collectionProp>
-            <stringProp name="Assertion.custom_message"></stringProp>
-            <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
-            <boolProp name="Assertion.assume_success">false</boolProp>
-            <intProp name="Assertion.test_type">16</intProp>
-          </ResponseAssertion>
-          <hashTree/>
-        </hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="空闲生产环境-充值/提现" enabled="true">
-          <stringProp name="HTTPSampler.domain">${free production environment}</stringProp>
-          <stringProp name="HTTPSampler.port">${port}</stringProp>
-          <stringProp name="HTTPSampler.protocol">http</stringProp>
-          <stringProp name="HTTPSampler.path">/crm20/modify_balance</stringProp>
-          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-          <stringProp name="HTTPSampler.method">POST</stringProp>
-          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
-          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
-            <collectionProp name="Arguments.arguments">
-              <elementProp name="" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">{&#xd;
-    &quot;login&quot;: &quot;${production account51}&quot;,&#xd;
-    &quot;amount&quot;: 1,&#xd;
-    &quot;instanceid&quot;: &quot;${mt5instanceid}&quot;,&#xd;
-    &quot;deal_type&quot;: 2,&#xd;
-    &quot;comment&quot;: &quot;test&quot;,&#xd;
-    &quot;expired_days&quot;:0 &#xd;
-}</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-              </elementProp>
-            </collectionProp>
-          </elementProp>
-        </HTTPSamplerProxy>
-        <hashTree>
-          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="响应断言" enabled="true">
-            <collectionProp name="Asserion.test_strings">
-              <stringProp name="-339185956">balance</stringProp>
-            </collectionProp>
-            <stringProp name="Assertion.custom_message"></stringProp>
-            <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
-            <boolProp name="Assertion.assume_success">false</boolProp>
-            <intProp name="Assertion.test_type">16</intProp>
-          </ResponseAssertion>
-          <hashTree/>
-        </hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="空闲生产环境-修改杠杆" enabled="true">
-          <stringProp name="HTTPSampler.domain">${free production environment}</stringProp>
-          <stringProp name="HTTPSampler.port">${port}</stringProp>
-          <stringProp name="HTTPSampler.protocol">http</stringProp>
-          <stringProp name="HTTPSampler.path">/crm20/modify_user_info</stringProp>
-          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-          <stringProp name="HTTPSampler.method">POST</stringProp>
-          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
-          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
-            <collectionProp name="Arguments.arguments">
-              <elementProp name="" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">{&#xd;
-    &quot;instanceid&quot;: &quot;MT4_1&quot;,&#xd;
-	&quot;login&quot;: &quot;${production account41}&quot;,&#xd;
-	&quot;leverage&quot;: 1000,&#xd;
-	&quot;group&quot;: &quot;F_STD_P10S&quot;&#xd;
-}</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-              </elementProp>
-            </collectionProp>
-          </elementProp>
-        </HTTPSamplerProxy>
-        <hashTree>
-          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="响应断言" enabled="true">
-            <collectionProp name="Asserion.test_strings">
-              <stringProp name="103149417">login</stringProp>
-            </collectionProp>
-            <stringProp name="Assertion.custom_message"></stringProp>
-            <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
-            <boolProp name="Assertion.assume_success">false</boolProp>
-            <intProp name="Assertion.test_type">16</intProp>
-          </ResponseAssertion>
-          <hashTree/>
-        </hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="空闲生产环境-重置密码" enabled="true">
-          <stringProp name="HTTPSampler.domain">${free production environment}</stringProp>
-          <stringProp name="HTTPSampler.port">${port}</stringProp>
-          <stringProp name="HTTPSampler.protocol">http</stringProp>
-          <stringProp name="HTTPSampler.path">/crm20/change_password</stringProp>
-          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-          <stringProp name="HTTPSampler.method">POST</stringProp>
-          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
-          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
-            <collectionProp name="Arguments.arguments">
-              <elementProp name="" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">{&#xd;
-    &quot;instanceid&quot;: &quot;MT5_1&quot;,&#xd;
-	&quot;login&quot;: &quot;${production account51}&quot;,&#xd;
-	&quot;password&quot;: &quot;123456Aa.&quot;,&#xd;
-	&quot;pwd_type&quot;: 0&#xd;
-}</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-              </elementProp>
-            </collectionProp>
-          </elementProp>
-        </HTTPSamplerProxy>
-        <hashTree/>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="空闲生产环境-修改账户权限" enabled="true">
-          <stringProp name="HTTPSampler.domain">${free production environment}</stringProp>
-          <stringProp name="HTTPSampler.port">${port}</stringProp>
-          <stringProp name="HTTPSampler.protocol">http</stringProp>
-          <stringProp name="HTTPSampler.path">/crm20/change_user_rights</stringProp>
-          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-          <stringProp name="HTTPSampler.method">POST</stringProp>
-          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
-          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
-            <collectionProp name="Arguments.arguments">
-              <elementProp name="" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">{&#xd;
-    &quot;instanceid&quot;: &quot;MT5_1&quot;,&#xd;
-	&quot;login&quot;: &quot;${production account51}&quot;,&#xd;
-	&quot;rights&quot;: 355&#xd;
-}</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-              </elementProp>
-            </collectionProp>
-          </elementProp>
-        </HTTPSamplerProxy>
-        <hashTree/>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="空闲生产环境-设置组权限" enabled="true">
-          <stringProp name="HTTPSampler.domain">${free production environment}</stringProp>
-          <stringProp name="HTTPSampler.port">${port}</stringProp>
-          <stringProp name="HTTPSampler.protocol">http</stringProp>
-          <stringProp name="HTTPSampler.path">/crm20/set_group_permission</stringProp>
-          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-          <stringProp name="HTTPSampler.method">POST</stringProp>
-          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
-          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
-            <collectionProp name="Arguments.arguments">
-              <elementProp name="" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">{&#xd;
-    &quot;instanceid&quot;: &quot;MT5_1&quot;,&#xd;
-	&quot;group_name&quot;: &quot;real\\F_ECN_P00S&quot;,&#xd;
-	&quot;enable&quot;: 1&#xd;
-}&#xd;
-</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-              </elementProp>
-            </collectionProp>
-          </elementProp>
-        </HTTPSamplerProxy>
-        <hashTree/>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="空闲生产环境-设置品种交易模式" enabled="true">
-          <stringProp name="HTTPSampler.domain">${free production environment}</stringProp>
-          <stringProp name="HTTPSampler.port">${port}</stringProp>
-          <stringProp name="HTTPSampler.protocol">http</stringProp>
-          <stringProp name="HTTPSampler.path">/crm20/set_symbol_trade_mode</stringProp>
-          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-          <stringProp name="HTTPSampler.method">POST</stringProp>
-          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
-          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
-            <collectionProp name="Arguments.arguments">
-              <elementProp name="" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">{&#xd;
-    &quot;instanceid&quot;: &quot;MT5_1&quot;,&#xd;
-	&quot;symbol&quot;: &quot;GBPCAD&quot;,&#xd;
-	&quot;mode&quot;: 1&#xd;
-}</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-              </elementProp>
-            </collectionProp>
-          </elementProp>
-        </HTTPSamplerProxy>
-        <hashTree/>
-        <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="空闲生产环境-持仓订单查询多个账户挂单订单- 备注意：有真实账号" enabled="true">
-          <stringProp name="LoopController.loops">1</stringProp>
-        </LoopController>
-        <hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="空闲生产环境查询多个账户挂单订单" enabled="true">
-            <stringProp name="TestPlan.comments">http://13.214.249.50:8080/crm20/list_pending_orders</stringProp>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="空闲生产环境-获取归档账户">
             <stringProp name="HTTPSampler.domain">${free production environment}</stringProp>
             <stringProp name="HTTPSampler.port">${port}</stringProp>
             <stringProp name="HTTPSampler.protocol">http</stringProp>
-            <stringProp name="HTTPSampler.path">/crm20/list_pending_orders</stringProp>
+            <stringProp name="HTTPSampler.path">/crm20/get_archive_user</stringProp>
             <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
             <stringProp name="HTTPSampler.method">POST</stringProp>
             <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
@@ -3002,6 +2869,258 @@ vars.put(&quot;loop_count_Loop10&quot;, String.valueOf(count + 1));</stringProp>
                 <elementProp name="" elementType="HTTPArgument">
                   <boolProp name="HTTPArgument.always_encode">false</boolProp>
                   <stringProp name="Argument.value">{&#xd;
+    &quot;instanceid&quot;: &quot;MT5_1&quot;&#xd;
+}</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="响应断言" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="73596745">Login</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.custom_message"></stringProp>
+              <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">16</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+          </hashTree>
+        </hashTree>
+        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="空闲生产-充值/提现事务">
+          <boolProp name="TransactionController.parent">true</boolProp>
+          <boolProp name="TransactionController.includeTimers">true</boolProp>
+        </TransactionController>
+        <hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="空闲生产环境-充值/提现">
+            <stringProp name="HTTPSampler.domain">${free production environment}</stringProp>
+            <stringProp name="HTTPSampler.port">${port}</stringProp>
+            <stringProp name="HTTPSampler.protocol">http</stringProp>
+            <stringProp name="HTTPSampler.path">/crm20/modify_balance</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <stringProp name="HTTPSampler.method">POST</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value">{&#xd;
+    &quot;login&quot;: &quot;${production account51}&quot;,&#xd;
+    &quot;amount&quot;: 1,&#xd;
+    &quot;instanceid&quot;: &quot;${mt5instanceid}&quot;,&#xd;
+    &quot;deal_type&quot;: 2,&#xd;
+    &quot;comment&quot;: &quot;test&quot;,&#xd;
+    &quot;expired_days&quot;:0 &#xd;
+}</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="响应断言" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="-339185956">balance</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.custom_message"></stringProp>
+              <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">16</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+          </hashTree>
+        </hashTree>
+        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="空闲生产-修改杠杆事务">
+          <boolProp name="TransactionController.parent">true</boolProp>
+          <boolProp name="TransactionController.includeTimers">true</boolProp>
+        </TransactionController>
+        <hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="空闲生产环境-修改杠杆">
+            <stringProp name="HTTPSampler.domain">${free production environment}</stringProp>
+            <stringProp name="HTTPSampler.port">${port}</stringProp>
+            <stringProp name="HTTPSampler.protocol">http</stringProp>
+            <stringProp name="HTTPSampler.path">/crm20/modify_user_info</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <stringProp name="HTTPSampler.method">POST</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value">{&#xd;
+    &quot;instanceid&quot;: &quot;MT4_1&quot;,&#xd;
+	&quot;login&quot;: &quot;${production account41}&quot;,&#xd;
+	&quot;leverage&quot;: 1000,&#xd;
+	&quot;group&quot;: &quot;F_STD_P10S&quot;&#xd;
+}</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="响应断言" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="103149417">login</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.custom_message"></stringProp>
+              <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">16</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+          </hashTree>
+        </hashTree>
+        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="空闲生产-重置密码事务">
+          <boolProp name="TransactionController.parent">true</boolProp>
+          <boolProp name="TransactionController.includeTimers">true</boolProp>
+        </TransactionController>
+        <hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="空闲生产环境-重置密码">
+            <stringProp name="HTTPSampler.domain">${free production environment}</stringProp>
+            <stringProp name="HTTPSampler.port">${port}</stringProp>
+            <stringProp name="HTTPSampler.protocol">http</stringProp>
+            <stringProp name="HTTPSampler.path">/crm20/change_password</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <stringProp name="HTTPSampler.method">POST</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value">{&#xd;
+    &quot;instanceid&quot;: &quot;MT5_1&quot;,&#xd;
+	&quot;login&quot;: &quot;${production account51}&quot;,&#xd;
+	&quot;password&quot;: &quot;123456Aa.&quot;,&#xd;
+	&quot;pwd_type&quot;: 0&#xd;
+}</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+          </HTTPSamplerProxy>
+          <hashTree/>
+        </hashTree>
+        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="空闲生产-修改账户权限事务">
+          <boolProp name="TransactionController.parent">true</boolProp>
+          <boolProp name="TransactionController.includeTimers">true</boolProp>
+        </TransactionController>
+        <hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="空闲生产环境-修改账户权限">
+            <stringProp name="HTTPSampler.domain">${free production environment}</stringProp>
+            <stringProp name="HTTPSampler.port">${port}</stringProp>
+            <stringProp name="HTTPSampler.protocol">http</stringProp>
+            <stringProp name="HTTPSampler.path">/crm20/change_user_rights</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <stringProp name="HTTPSampler.method">POST</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value">{&#xd;
+    &quot;instanceid&quot;: &quot;MT5_1&quot;,&#xd;
+	&quot;login&quot;: &quot;${production account51}&quot;,&#xd;
+	&quot;rights&quot;: 355&#xd;
+}</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+          </HTTPSamplerProxy>
+          <hashTree/>
+        </hashTree>
+        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="空闲生产-设置组权限事务">
+          <boolProp name="TransactionController.parent">true</boolProp>
+          <boolProp name="TransactionController.includeTimers">true</boolProp>
+        </TransactionController>
+        <hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="空闲生产环境-设置组权限">
+            <stringProp name="HTTPSampler.domain">${free production environment}</stringProp>
+            <stringProp name="HTTPSampler.port">${port}</stringProp>
+            <stringProp name="HTTPSampler.protocol">http</stringProp>
+            <stringProp name="HTTPSampler.path">/crm20/set_group_permission</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <stringProp name="HTTPSampler.method">POST</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value">{&#xd;
+    &quot;instanceid&quot;: &quot;MT5_1&quot;,&#xd;
+	&quot;group_name&quot;: &quot;real\\F_ECN_P00S&quot;,&#xd;
+	&quot;enable&quot;: 1&#xd;
+}&#xd;
+</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+          </HTTPSamplerProxy>
+          <hashTree/>
+        </hashTree>
+        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="空闲生产-设置品种交易模式事务">
+          <boolProp name="TransactionController.parent">true</boolProp>
+          <boolProp name="TransactionController.includeTimers">true</boolProp>
+        </TransactionController>
+        <hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="空闲生产环境-设置品种交易模式">
+            <stringProp name="HTTPSampler.domain">${free production environment}</stringProp>
+            <stringProp name="HTTPSampler.port">${port}</stringProp>
+            <stringProp name="HTTPSampler.protocol">http</stringProp>
+            <stringProp name="HTTPSampler.path">/crm20/set_symbol_trade_mode</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <stringProp name="HTTPSampler.method">POST</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value">{&#xd;
+    &quot;instanceid&quot;: &quot;MT5_1&quot;,&#xd;
+	&quot;symbol&quot;: &quot;GBPCAD&quot;,&#xd;
+	&quot;mode&quot;: 1&#xd;
+}</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+          </HTTPSamplerProxy>
+          <hashTree/>
+        </hashTree>
+        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="空闲生产-持仓订单查询多个账户挂单订单- 备注意：有真实账号事务">
+          <boolProp name="TransactionController.parent">true</boolProp>
+          <boolProp name="TransactionController.includeTimers">true</boolProp>
+        </TransactionController>
+        <hashTree>
+          <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="空闲生产环境-持仓订单查询多个账户挂单订单- 备注意：有真实账号">
+            <stringProp name="LoopController.loops">1</stringProp>
+          </LoopController>
+          <hashTree>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="空闲生产环境查询多个账户挂单订单">
+              <stringProp name="TestPlan.comments">http://13.214.249.50:8080/crm20/list_pending_orders</stringProp>
+              <stringProp name="HTTPSampler.domain">${free production environment}</stringProp>
+              <stringProp name="HTTPSampler.port">${port}</stringProp>
+              <stringProp name="HTTPSampler.protocol">http</stringProp>
+              <stringProp name="HTTPSampler.path">/crm20/list_pending_orders</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <stringProp name="HTTPSampler.method">POST</stringProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+                <collectionProp name="Arguments.arguments">
+                  <elementProp name="" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">{&#xd;
     &quot;accounts&quot;: [&#xd;
         {&#xd;
             &quot;instanceid&quot;: &quot;MT5_2&quot;,&#xd;
@@ -3033,43 +3152,49 @@ vars.put(&quot;loop_count_Loop10&quot;, String.valueOf(count + 1));</stringProp>
     &quot;sort_by&quot;: &quot;time_setup_utc_ms&quot;,&#xd;
     &quot;sort_order&quot;: &quot;desc&quot;&#xd;
 }</stringProp>
-                  <stringProp name="Argument.metadata">=</stringProp>
-                </elementProp>
-              </collectionProp>
-            </elementProp>
-          </HTTPSamplerProxy>
-          <hashTree>
-            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="响应断言" enabled="true">
-              <collectionProp name="Asserion.test_strings">
-                <stringProp name="619047839">total_profit</stringProp>
-              </collectionProp>
-              <stringProp name="Assertion.custom_message"></stringProp>
-              <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
-              <boolProp name="Assertion.assume_success">false</boolProp>
-              <intProp name="Assertion.test_type">16</intProp>
-            </ResponseAssertion>
-            <hashTree/>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </elementProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="响应断言" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="619047839">total_profit</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.custom_message"></stringProp>
+                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">16</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+            </hashTree>
           </hashTree>
         </hashTree>
-        <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="空闲生产环境-生产环境-查询多个账户的当前持仓订单 备注意：有真实账号" enabled="true">
-          <stringProp name="LoopController.loops">1</stringProp>
-        </LoopController>
+        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="空闲生产-空闲生产环境-生产环境-查询多个账户的当前持仓订单 备注意：有真实账号事务">
+          <boolProp name="TransactionController.parent">true</boolProp>
+          <boolProp name="TransactionController.includeTimers">true</boolProp>
+        </TransactionController>
         <hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="查询多个账户持仓订单" enabled="true">
-            <stringProp name="TestPlan.comments">http://13.214.249.50:8080/crm20/list_pending_orders</stringProp>
-            <stringProp name="HTTPSampler.domain">${free production environment}</stringProp>
-            <stringProp name="HTTPSampler.port">${port}</stringProp>
-            <stringProp name="HTTPSampler.protocol">http</stringProp>
-            <stringProp name="HTTPSampler.path">/crm20/list_open_positions</stringProp>
-            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-            <stringProp name="HTTPSampler.method">POST</stringProp>
-            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
-            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
-              <collectionProp name="Arguments.arguments">
-                <elementProp name="" elementType="HTTPArgument">
-                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                  <stringProp name="Argument.value">{&#xd;
+          <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="空闲生产环境-生产环境-查询多个账户的当前持仓订单 备注意：有真实账号">
+            <stringProp name="LoopController.loops">1</stringProp>
+          </LoopController>
+          <hashTree>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="查询多个账户持仓订单" enabled="true">
+              <stringProp name="TestPlan.comments">http://13.214.249.50:8080/crm20/list_pending_orders</stringProp>
+              <stringProp name="HTTPSampler.domain">${free production environment}</stringProp>
+              <stringProp name="HTTPSampler.port">${port}</stringProp>
+              <stringProp name="HTTPSampler.protocol">http</stringProp>
+              <stringProp name="HTTPSampler.path">/crm20/list_open_positions</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <stringProp name="HTTPSampler.method">POST</stringProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+                <collectionProp name="Arguments.arguments">
+                  <elementProp name="" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">{&#xd;
   &quot;accounts&quot;: [&#xd;
      {&#xd;
       &quot;instanceid&quot;: &quot;MT5_2&quot;,&#xd;
@@ -3100,43 +3225,121 @@ vars.put(&quot;loop_count_Loop10&quot;, String.valueOf(count + 1));</stringProp>
   &quot;sort_by&quot;: &quot;open_time_utc_ms&quot;,&#xd;
   &quot;sort_order&quot;: &quot;desc&quot;&#xd;
 }</stringProp>
-                  <stringProp name="Argument.metadata">=</stringProp>
-                </elementProp>
-              </collectionProp>
-            </elementProp>
-          </HTTPSamplerProxy>
-          <hashTree>
-            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="响应断言" enabled="true">
-              <collectionProp name="Asserion.test_strings">
-                <stringProp name="619047839">total_profit</stringProp>
-              </collectionProp>
-              <stringProp name="Assertion.custom_message"></stringProp>
-              <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
-              <boolProp name="Assertion.assume_success">false</boolProp>
-              <intProp name="Assertion.test_type">16</intProp>
-            </ResponseAssertion>
-            <hashTree/>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </elementProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="响应断言" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="619047839">total_profit</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.custom_message"></stringProp>
+                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">16</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+            </hashTree>
           </hashTree>
         </hashTree>
-        <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="23空闲生产环境-生产环境-查询多个账户的当前持仓订单 备注意：有真实账号" enabled="true">
-          <stringProp name="LoopController.loops">1</stringProp>
-        </LoopController>
+        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="空闲生产-22-查询多个账户的当前持仓订单 备注意：有真实账号事务">
+          <boolProp name="TransactionController.parent">true</boolProp>
+          <boolProp name="TransactionController.includeTimers">true</boolProp>
+        </TransactionController>
         <hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="23交易大赛-批量查询完全关闭持仓生命周期" enabled="true">
-            <stringProp name="TestPlan.comments">http://13.214.249.50:8080/crm20/list_pending_orders</stringProp>
-            <stringProp name="HTTPSampler.domain">${free production environment}</stringProp>
-            <stringProp name="HTTPSampler.port">${port}</stringProp>
-            <stringProp name="HTTPSampler.protocol">http</stringProp>
-            <stringProp name="HTTPSampler.path">/contest/positions/history/query</stringProp>
-            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-            <stringProp name="HTTPSampler.method">POST</stringProp>
-            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
-            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
-              <collectionProp name="Arguments.arguments">
-                <elementProp name="" elementType="HTTPArgument">
-                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                  <stringProp name="Argument.value">{&#xd;
+          <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="22空闲生产环境-生产环境-查询多个账户的当前持仓订单 备注意：有真实账号">
+            <stringProp name="LoopController.loops">1</stringProp>
+          </LoopController>
+          <hashTree>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="22交易大赛-批量查询账户资金信息事务" enabled="true">
+              <stringProp name="TestPlan.comments">http://13.214.249.50:8080/crm20/list_pending_orders</stringProp>
+              <stringProp name="HTTPSampler.domain">${free production environment}</stringProp>
+              <stringProp name="HTTPSampler.port">${port}</stringProp>
+              <stringProp name="HTTPSampler.protocol">http</stringProp>
+              <stringProp name="HTTPSampler.path">/contest/accounts/query</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <stringProp name="HTTPSampler.method">POST</stringProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+                <collectionProp name="Arguments.arguments">
+                  <elementProp name="" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">{&#xd;
+    &quot;accounts&quot;: [&#xd;
+        {&#xd;
+            &quot;instance_id&quot;: &quot;MT5_2&quot;,&#xd;
+            &quot;login&quot;: 109950000&#xd;
+        },&#xd;
+        {&#xd;
+            &quot;instance_id&quot;: &quot;MT5_3&quot;,&#xd;
+            &quot;login&quot;: 201152602&#xd;
+        },&#xd;
+        {&#xd;
+            &quot;instance_id&quot;: &quot;MT5_4&quot;,&#xd;
+            &quot;login&quot;: 7753317&#xd;
+        },&#xd;
+        {&#xd;
+            &quot;instance_id&quot;: &quot;MT5_6&quot;,&#xd;
+            &quot;login&quot;: 301101522&#xd;
+        },&#xd;
+        {&#xd;
+            &quot;instance_id&quot;: &quot;${mt5instanceid}&quot;,&#xd;
+            &quot;login&quot;: ${production account51}&#xd;
+        },&#xd;
+        {&#xd;
+            &quot;instance_id&quot;: &quot;${mt4instanceid}&quot;,&#xd;
+            &quot;login&quot;: ${production account41}&#xd;
+        }&#xd;
+    ],&#xd;
+    &quot;limit&quot;: 1000,&#xd;
+    &quot;cursor&quot;: null&#xd;
+}</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </elementProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="响应断言" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="1394719203">account_currency</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.custom_message"></stringProp>
+                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">16</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+            </hashTree>
+          </hashTree>
+        </hashTree>
+        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="23空闲生产-查询多个账户的当前持仓订单 备注意：有真实账号事务">
+          <boolProp name="TransactionController.parent">true</boolProp>
+          <boolProp name="TransactionController.includeTimers">true</boolProp>
+        </TransactionController>
+        <hashTree>
+          <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="23空闲生产环境-生产环境-查询多个账户的当前持仓订单 备注意：有真实账号">
+            <stringProp name="LoopController.loops">1</stringProp>
+          </LoopController>
+          <hashTree>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="23交易大赛-批量查询完全关闭持仓生命周期" enabled="true">
+              <stringProp name="TestPlan.comments">http://13.214.249.50:8080/crm20/list_pending_orders</stringProp>
+              <stringProp name="HTTPSampler.domain">${free production environment}</stringProp>
+              <stringProp name="HTTPSampler.port">${port}</stringProp>
+              <stringProp name="HTTPSampler.protocol">http</stringProp>
+              <stringProp name="HTTPSampler.path">/contest/positions/history/query</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <stringProp name="HTTPSampler.method">POST</stringProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+                <collectionProp name="Arguments.arguments">
+                  <elementProp name="" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">{&#xd;
     &quot;accounts&quot;: [&#xd;
         {&#xd;
             &quot;instance_id&quot;: &quot;MT5_2&quot;,&#xd;
@@ -3169,118 +3372,25 @@ vars.put(&quot;loop_count_Loop10&quot;, String.valueOf(count + 1));</stringProp>
     &quot;limit&quot;: 1000,&#xd;
     &quot;cursor&quot;: null&#xd;
 }</stringProp>
-                  <stringProp name="Argument.metadata">=</stringProp>
-                </elementProp>
-              </collectionProp>
-            </elementProp>
-          </HTTPSamplerProxy>
-          <hashTree>
-            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="响应断言" enabled="true">
-              <collectionProp name="Asserion.test_strings">
-                <stringProp name="831439563">close_notional_value_usd_at_execution</stringProp>
-              </collectionProp>
-              <stringProp name="Assertion.custom_message"></stringProp>
-              <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
-              <boolProp name="Assertion.assume_success">false</boolProp>
-              <intProp name="Assertion.test_type">16</intProp>
-            </ResponseAssertion>
-            <hashTree/>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </elementProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="响应断言" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="831439563">close_notional_value_usd_at_execution</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.custom_message"></stringProp>
+                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">16</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+            </hashTree>
           </hashTree>
         </hashTree>
-        <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="22空闲生产环境-生产环境-查询多个账户的当前持仓订单 备注意：有真实账号" enabled="true">
-          <stringProp name="LoopController.loops">1</stringProp>
-        </LoopController>
-        <hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="22交易大赛-批量查询账户资金信息事务" enabled="true">
-            <stringProp name="TestPlan.comments">http://13.214.249.50:8080/crm20/list_pending_orders</stringProp>
-            <stringProp name="HTTPSampler.domain">${free production environment}</stringProp>
-            <stringProp name="HTTPSampler.port">${port}</stringProp>
-            <stringProp name="HTTPSampler.protocol">http</stringProp>
-            <stringProp name="HTTPSampler.path">/contest/accounts/query</stringProp>
-            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-            <stringProp name="HTTPSampler.method">POST</stringProp>
-            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
-            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
-              <collectionProp name="Arguments.arguments">
-                <elementProp name="" elementType="HTTPArgument">
-                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                  <stringProp name="Argument.value">{&#xd;
-    &quot;accounts&quot;: [&#xd;
-        {&#xd;
-            &quot;instance_id&quot;: &quot;MT5_2&quot;,&#xd;
-            &quot;login&quot;: 109950000&#xd;
-        },&#xd;
-        {&#xd;
-            &quot;instance_id&quot;: &quot;MT5_3&quot;,&#xd;
-            &quot;login&quot;: 201152602&#xd;
-        },&#xd;
-        {&#xd;
-            &quot;instance_id&quot;: &quot;MT5_4&quot;,&#xd;
-            &quot;login&quot;: 7753317&#xd;
-        },&#xd;
-        {&#xd;
-            &quot;instance_id&quot;: &quot;MT5_6&quot;,&#xd;
-            &quot;login&quot;: 301101522&#xd;
-        },&#xd;
-        {&#xd;
-            &quot;instance_id&quot;: &quot;${mt5instanceid}&quot;,&#xd;
-            &quot;login&quot;: ${production account51}&#xd;
-        },&#xd;
-        {&#xd;
-            &quot;instance_id&quot;: &quot;${mt4instanceid}&quot;,&#xd;
-            &quot;login&quot;: ${production account41}&#xd;
-        }&#xd;
-    ],&#xd;
-    &quot;limit&quot;: 1000,&#xd;
-    &quot;cursor&quot;: null&#xd;
-}</stringProp>
-                  <stringProp name="Argument.metadata">=</stringProp>
-                </elementProp>
-              </collectionProp>
-            </elementProp>
-          </HTTPSamplerProxy>
-          <hashTree>
-            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="响应断言" enabled="true">
-              <collectionProp name="Asserion.test_strings">
-                <stringProp name="1394719203">account_currency</stringProp>
-              </collectionProp>
-              <stringProp name="Assertion.custom_message"></stringProp>
-              <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
-              <boolProp name="Assertion.assume_success">false</boolProp>
-              <intProp name="Assertion.test_type">16</intProp>
-            </ResponseAssertion>
-            <hashTree/>
-          </hashTree>
-        </hashTree>
-        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="事务控制器" enabled="false">
-          <boolProp name="TransactionController.includeTimers">false</boolProp>
-        </TransactionController>
-        <hashTree/>
-        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="事务控制器" enabled="false">
-          <boolProp name="TransactionController.includeTimers">false</boolProp>
-        </TransactionController>
-        <hashTree/>
-        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="事务控制器" enabled="false">
-          <boolProp name="TransactionController.includeTimers">false</boolProp>
-        </TransactionController>
-        <hashTree/>
-        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="事务控制器" enabled="false">
-          <boolProp name="TransactionController.includeTimers">false</boolProp>
-        </TransactionController>
-        <hashTree/>
-        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="事务控制器" enabled="false">
-          <boolProp name="TransactionController.includeTimers">false</boolProp>
-        </TransactionController>
-        <hashTree/>
-        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="事务控制器" enabled="false">
-          <boolProp name="TransactionController.includeTimers">false</boolProp>
-        </TransactionController>
-        <hashTree/>
-        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="事务控制器" enabled="false">
-          <boolProp name="TransactionController.includeTimers">false</boolProp>
-        </TransactionController>
-        <hashTree/>
       </hashTree>
       <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="中间件相关接口-真实生产环境-github✅✅">
         <intProp name="ThreadGroup.num_threads">1</intProp>
