@@ -5,6 +5,7 @@ CRM2.0 中间件接口 JTL 失败报告生成器
 
 功能:
   - 读取 JMeter 生成的 .jtl 文件，默认支持 CSV JTL，也兼容常见 XML JTL。
+  - 总览按事务控制器执行次数统计，采样数辅助展示；可指定实际执行的 JMX 校验事务配置。
   - 只输出失败/报错的采样结果。
   - 从 failureMessage 中提取接口、字段、预期值(DB/CSV)、实际值(API)、DB字段、辅助接口值、失败原因。
   - 生成一个可直接打开的 HTML 报告，样式内嵌，无外部依赖。
@@ -14,6 +15,7 @@ CRM2.0 中间件接口 JTL 失败报告生成器
   python jtl_fail_report.py 中间件接口结果.jtl
   python jtl_fail_report.py 中间件接口结果.jtl -o 中间件接口对比失败报告.html
   python jtl_fail_report.py 中间件接口结果.jtl --config jtl_fail_report_config.json --no-open
+  python jtl_fail_report.py 中间件接口结果.jtl --jmx 实际执行的测试计划.jmx --no-open
   python jtl_fail_report.py 中间件接口结果.jtl --no-open --teams-send-file --teams-graph-token <GraphToken>
   python jtl_fail_report.py 中间件接口结果.jtl --no-open --teams-send-file --teams-auto-login
 """
@@ -37,7 +39,7 @@ from urllib.parse import parse_qs, parse_qsl, quote, unquote, urlencode, urlpars
 from urllib import request as urlrequest
 
 
-SCRIPT_VERSION = "4.20"
+SCRIPT_VERSION = "4.22"
 DEFAULT_CONFIG_FILE = "jtl_fail_report_config.json"
 DEFAULT_TOKEN_CACHE_FILE = "jtl_fail_report_token_cache.json"
 DEFAULT_TEAMS_CHAT_URL = "https://teams.microsoft.com/l/chat/19:4f1f0b60d3a94f90b0c883360575d0d8@thread.v2/conversations?context=%7B%22contextType%22%3A%22chat%22%7D"
@@ -168,10 +170,15 @@ def child_text_by_local_name(elem, local_names):
 def parse_xml_jtl(text):
     rows = []
     root = parse_xml_root(text)
-    for elem in root.iter():
-        tag = elem.tag.split("}")[-1]
-        if tag not in ("httpSample", "sample"):
-            continue
+
+    def iter_samples(elem, depth=0):
+        is_sample = elem.tag.split("}")[-1] in ("httpSample", "sample")
+        if is_sample:
+            yield elem, depth
+        for child in elem:
+            yield from iter_samples(child, depth + int(is_sample))
+
+    for elem, depth in iter_samples(root):
         attrs = elem.attrib
         method = child_text_by_local_name(elem, ("method", "Method", "requestMethod"))
         query_string = child_text_by_local_name(elem, ("queryString", "QueryString", "query_string"))
@@ -185,6 +192,8 @@ def parse_xml_jtl(text):
                 assertion_messages.append(msg)
         url = attrs.get("url", "") or child_text_by_local_name(elem, ("java.net.URL", "URL", "url"))
         rows.append({
+            "_sample_depth": depth,
+            "_sample_tag": elem.tag.split("}")[-1],
             "timeStamp": attrs.get("ts", ""),
             "elapsed": attrs.get("t", ""),
             "label": attrs.get("lb", ""),
@@ -893,7 +902,6 @@ def extract_failures(rows):
                 recent_api_contexts = recent_api_contexts[-12:]
             continue
 
-        label = row.get("label", "")
         response_data = response_data_from_row(row)
         message = row.get("failureMessage", "") or ""
         if not message and looks_like_compare_report(response_data):
@@ -902,7 +910,7 @@ def extract_failures(rows):
             message = row.get("responseMessage", "") or ""
 
         # Transaction rows only say "number of failing samples"; child sampler has the real detail.
-        if "事务" in label:
+        if is_transaction_row(row):
             if own_api_context:
                 recent_api_contexts.append(own_api_context)
                 recent_api_contexts = recent_api_contexts[-12:]
@@ -966,19 +974,82 @@ def sample_time(ms):
 
 
 def is_transaction_row(row):
-    label = row.get("label", "") or ""
     response_message = row.get("responseMessage", "") or ""
-    return "事务" in label or "Number of samples in transaction" in response_message
+    if re.search(r"\bNumber\s+of\s+samples\s+in\s+transaction\b", response_message, re.I):
+        return True
+    # HTTP sampler names may also contain the word "transaction".
+    if row.get("_sample_tag") == "httpSample" or is_http_url(row.get("URL")):
+        return False
+    # A name alone cannot distinguish a controller from HTTP/JSR223 samples.
+    return bool(row.get("_jmx_transaction"))
+
+
+def read_transaction_plan(path):
+    """Read enabled controller definitions, respecting disabled ancestor nodes."""
+    root = parse_xml_root(read_text(path))
+    labels = []
+    controller_total = 0
+
+    def walk(tree, active=True):
+        nonlocal controller_total
+        nodes = list(tree)
+        for index, node in enumerate(nodes):
+            if node.tag == "hashTree":
+                continue
+            enabled = active and node.get("enabled", "true").strip().lower() != "false"
+            if node.tag == "TransactionController":
+                controller_total += 1
+                if enabled:
+                    labels.append(node.get("testname", ""))
+            if index + 1 < len(nodes) and nodes[index + 1].tag == "hashTree":
+                walk(nodes[index + 1], enabled)
+
+    tree = root if root.tag == "hashTree" else root.find("hashTree")
+    if tree is None:
+        raise ValueError(f"不是有效的 JMeter 测试计划，缺少 hashTree: {path}")
+    walk(tree)
+    return {"path": os.path.abspath(path), "controller_total": controller_total, "enabled_labels": labels}
+
+
+def apply_transaction_plan(rows, plan):
+    """Use exact JMX names only as a fallback when JTL type metadata is absent."""
+    labels = {label for label in plan["enabled_labels"] if label and "${" not in label}
+    for row in rows:
+        row["_jmx_transaction"] = row.get("label", "") in labels
+
+
+def print_transaction_plan_diagnostics(summary, plan):
+    print(f"  校验 JMX: {plan['path']}")
+    print(f"  JMX 事务控制器定义: 共 {plan['controller_total']} 个，实际启用 {len(plan['enabled_labels'])} 个（非执行次数）")
+    expected = {label for label in plan["enabled_labels"] if label and "${" not in label}
+    observed = {item["label"] for item in summary["transaction_groups"]}
+    missing = sorted(expected - observed)
+    if missing:
+        print("  警告: 以下启用的事务控制器未在 JTL 中匹配到执行记录:")
+        for label in missing:
+            print(f"    - {label}")
+        print("  请核对 JMX/JTL 是否属于同一次构建、事务是否被条件跳过，以及结果是否完整保存。")
+    if not plan["enabled_labels"]:
+        print("  警告: 此 JMX 没有实际启用的事务控制器，请核对是否与 GUI 打开的 JMX 为同一文件。")
 
 
 def summarize(details, all_rows):
     raw_failed = [r for r in all_rows if str(r.get("success", "")).strip().lower() == "false"]
+    # Match Aggregate Report: XML sub-results provide details, not extra samples.
+    sample_rows = [r for r in all_rows if r.get("_sample_depth", 0) == 0]
+    sample_failed = sum(str(r.get("success", "")).strip().lower() == "false" for r in sample_rows)
     transaction_rows = [r for r in all_rows if is_transaction_row(r)]
     failed_transaction_rows = [
         r for r in transaction_rows
         if str(r.get("success", "")).strip().lower() == "false"
     ]
     transaction_success = max(len(transaction_rows) - len(failed_transaction_rows), 0)
+    transaction_groups = {}
+    for row in transaction_rows:
+        label = row.get("label", "") or "(未命名事务)"
+        group = transaction_groups.setdefault(label, {"label": label, "total": 0, "failed": 0})
+        group["total"] += 1
+        group["failed"] += int(str(row.get("success", "")).strip().lower() == "false")
     fail_fields = []
     skip_fields = []
     for d in details:
@@ -1008,9 +1079,16 @@ def summarize(details, all_rows):
     return {
         "total_rows": len(all_rows),
         "raw_failed": len(raw_failed),
+        "sample_total": len(sample_rows),
+        "sample_failed": sample_failed,
+        "sample_success": len(sample_rows) - sample_failed,
+        "sample_scope": "XML 仅统计顶层采样（子结果用于明细）；CSV 按数据行统计，均含非 HTTP 采样。",
         "transaction_total": len(transaction_rows),
         "transaction_failed": len(failed_transaction_rows),
         "transaction_success": transaction_success,
+        "transaction_groups": list(transaction_groups.values()),
+        "transaction_scope": "按 JTL 中的事务控制器执行记录累计；同名多次执行、嵌套事务分别计数，不按 HTTP 请求数统计。",
+        "transaction_warning": "" if transaction_rows else "JTL 未识别到事务控制器执行记录，事务成功率不适用；请核对实际执行的 JMX 和 JTL 保存配置。",
         "details": len(details),
         "fail_fields": fail_fields,
         "fail_field_total": len(fail_fields),
@@ -2617,9 +2695,25 @@ def render_sample(detail, index):
     return "".join(pieces)
 
 
+def render_transaction_statistics(summary):
+    parts = [
+        '<div class="section"><div class="section-title"><h2>事务执行明细</h2></div>',
+        '<table class="table"><thead><tr><th>事务名称</th><th>执行次数</th><th>失败次数</th><th>成功率</th></tr></thead><tbody>',
+    ]
+    for group in summary["transaction_groups"]:
+        success_rate = rate_text(group["total"] - group["failed"], group["total"])
+        parts.append(
+            f'<tr><td>{h(group["label"])}</td><td>{group["total"]}</td>'
+            f'<td>{group["failed"]}</td><td>{success_rate}</td></tr>'
+        )
+    parts.append('</tbody></table></div>')
+    return "".join(parts)
+
+
 def generate_html(details, all_rows, jtl_name):
     summary = summarize(details, all_rows)
     generated_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    sample_rate = rate_text(summary["sample_success"], summary["sample_total"])
     transaction_rate = rate_text(summary["transaction_success"], summary["transaction_total"])
 
     parts = [
@@ -2635,6 +2729,9 @@ def generate_html(details, all_rows, jtl_name):
         '<div class="top">',
         "<h1>CRM2.0+交易大赛真实生产和空闲生产中间件接口失败报告</h1>",
         f'<div class="sub">数据来源: {h(jtl_name)} | 生成时间: {h(generated_at)}</div>',
+        f'<div class="sub">统计口径: {h(summary["transaction_scope"])}</div>',
+        f'<div class="sub">采样统计（辅助）: 总数 {summary["sample_total"]} | 失败 {summary["sample_failed"]} | 成功率 {sample_rate}</div>',
+        f'<div class="sub">{h(summary["sample_scope"])}</div>',
         "</div>",
         '<div class="stats primary">',
         f'<div class="stat"><div class="num">{summary["transaction_total"]}</div><div class="name">事务总数</div></div>',
@@ -2644,6 +2741,10 @@ def generate_html(details, all_rows, jtl_name):
         "</div>",
     ]
 
+    if summary["transaction_warning"]:
+        parts.append(f'<div class="section"><div class="empty">{h(summary["transaction_warning"])}</div></div>')
+    if summary["transaction_groups"]:
+        parts.append(render_transaction_statistics(summary))
     if not details:
         parts.append('<div class="section"><div class="empty">未发现失败样本，当前 JTL 没有需要输出的报错部分。</div></div>')
     else:
@@ -2877,6 +2978,7 @@ def resolve_teams_options(args, config):
 def build_teams_payload(details, all_rows, jtl_name, output_path, report_url=None, chat_url=None):
     summary = summarize(details, all_rows)
     generated_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    sample_rate = rate_text(summary["sample_success"], summary["sample_total"])
     transaction_rate = rate_text(summary["transaction_success"], summary["transaction_total"])
     status_text = "发现失败，请查看报告" if details else "未发现失败样本"
     status_color = "Attention" if details else "Good"
@@ -2927,6 +3029,8 @@ def build_teams_payload(details, all_rows, jtl_name, output_path, report_url=Non
         {"title": "事务总数", "value": str(summary["transaction_total"])},
         {"title": "失败事务", "value": str(summary["transaction_failed"])},
         {"title": "事务成功率", "value": f"{transaction_rate} ({summary['transaction_success']}/{summary['transaction_total']})"},
+        {"title": "采样统计（辅助）", "value": f"总数 {summary['sample_total']} / 失败 {summary['sample_failed']} / 成功率 {sample_rate}"},
+        {"title": "统计口径", "value": summary["transaction_scope"]},
         {"title": "对比失败字段(去重)", "value": str(summary["fail_field_unique_count"])},
     ]
 
@@ -2961,6 +3065,24 @@ def build_teams_payload(details, all_rows, jtl_name, output_path, report_url=Non
         },
         {"type": "FactSet", "facts": facts},
     ]
+
+    if summary["transaction_warning"]:
+        body.append({
+            "type": "TextBlock", "text": summary["transaction_warning"],
+            "color": "Attention", "wrap": True,
+        })
+    if summary["transaction_groups"]:
+        groups = summary["transaction_groups"]
+        lines = [
+            f"{shorten_text(group['label'], 100)}：执行 {group['total']} / 失败 {group['failed']}"
+            for group in groups[:10]
+        ]
+        if len(groups) > 10:
+            lines.append(f"另有 {len(groups) - 10} 个事务名称，请查看 HTML 完整明细。")
+        body.append({
+            "type": "TextBlock", "text": "**事务执行明细**\n\n" + "\n\n".join(lines),
+            "wrap": True, "separator": True,
+        })
 
     if top_apis:
         body.append({
@@ -3485,6 +3607,7 @@ def parse_args():
     parser.add_argument("-o", "--output", help="输出 HTML 文件路径，默认: <JTL文件名>_失败报告.html")
     parser.add_argument("--no-open", action="store_true", help="生成后不自动打开浏览器")
     parser.add_argument("--config", default=DEFAULT_CONFIG_FILE, help=f"配置文件路径，默认: {DEFAULT_CONFIG_FILE}")
+    parser.add_argument("--jmx", help="实际执行的 JMX 文件；用于辅助识别事务，并校验启用的事务是否出现在 JTL 中。不会执行或修改 JMX。")
     parser.add_argument(
         "--teams-chat-url",
         help="TM/Teams 聊天页面链接；也可用配置项 teams_chat_url 或环境变量 TEAMS_CHAT_URL/TM_CHAT_URL。",
@@ -3571,14 +3694,26 @@ def main():
     print(f"文件大小: {os.path.getsize(jtl_path) / 1024:.1f} KB")
 
     rows = parse_jtl(jtl_path)
+    transaction_plan = read_transaction_plan(args.jmx) if args.jmx else None
+    if transaction_plan is not None:
+        apply_transaction_plan(rows, transaction_plan)
     details = extract_failures(rows)
     summary = summarize(details, rows)
+    sample_rate = rate_text(summary["sample_success"], summary["sample_total"])
     transaction_rate = rate_text(summary["transaction_success"], summary["transaction_total"])
 
     print("\n解析结果:")
     print(f"  事务总数: {summary['transaction_total']}")
     print(f"  失败事务: {summary['transaction_failed']}")
     print(f"  事务成功率: {transaction_rate} ({summary['transaction_success']}/{summary['transaction_total']})")
+    print(f"  统计口径: {summary['transaction_scope']}")
+    print(f"  采样统计（辅助）: 总数 {summary['sample_total']} / 失败 {summary['sample_failed']} / 成功率 {sample_rate}")
+    if summary["transaction_warning"]:
+        print(f"  警告: {summary['transaction_warning']}")
+    for group in summary["transaction_groups"]:
+        print(f"  事务: {group['label']} | 执行 {group['total']} | 失败 {group['failed']}")
+    if transaction_plan is not None:
+        print_transaction_plan_diagnostics(summary, transaction_plan)
     print(f"  对比失败字段总数(去重): {summary['fail_field_unique_count']}")
     print("  接口失败统计（按失败样本数降序）:")
     console_api_items = sorted(
