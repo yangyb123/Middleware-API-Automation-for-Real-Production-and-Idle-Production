@@ -56,7 +56,7 @@
 	
 	
 	<!-- 如需修改已定义的属性，需加override="true" -->
-     <property name="project.name" value="CRM2.0 Middleware Automation"/>
+     <property name="project.name" value="Middleware-API-Automation-for-Real-Production-and-Idle-Production"/>
 	
     <!-- XSL 报告模板目录（用于转换 JTL 为 HTML） -->
     
@@ -648,7 +648,7 @@
         <echo message="完整流程执行完成！" />
     </target>
     
-    <!-- ========================================================================CRM2.0 Middleware Automation
+    <!-- ========================================================================Middleware-API-Automation-for-Real-Production-and-Idle-Production
          第十四部分：帮助信息
          说明: 显示可用的任务列表
          ======================================================================== -->
