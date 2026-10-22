@@ -2633,7 +2633,7 @@ def generate_html(details, all_rows, jtl_name):
         "</head>",
         "<body><div class=\"wrap\">",
         '<div class="top">',
-        "<h1>CRM2.0 中间件接口对比失败报告</h1>",
+        "<h1>CRM2.0+交易大赛真实生产和空闲生产中间件接口失败报告</h1>",
         f'<div class="sub">数据来源: {h(jtl_name)} | 生成时间: {h(generated_at)}</div>',
         "</div>",
         '<div class="stats primary">',
@@ -2933,7 +2933,7 @@ def build_teams_payload(details, all_rows, jtl_name, output_path, report_url=Non
     body = [
         {
             "type": "TextBlock",
-            "text": "CRM2.0 中间件接口对比失败报告",
+            "text": "CRM2.0+交易大赛真实生产和空闲生产中间件接口失败报告",
             "weight": "Bolder",
             "size": "Large",
             "wrap": True,
